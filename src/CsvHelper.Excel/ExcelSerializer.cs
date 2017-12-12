@@ -28,7 +28,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="path">The path to which to save the workbook.</param>
         /// <param name="configuration">The configuration</param>
-        public ExcelSerializer(string path, Configuration configuration = null) 
+        public ExcelSerializer(string path, Configuration configuration = null)
             : this(new XLWorkbook(XLEventTracking.Disabled), configuration)
         {
             this.path = path;
@@ -48,7 +48,7 @@ namespace CsvHelper.Excel
             this.path = path;
             disposeWorkbook = true;
         }
-        
+
         /// <summary>
         /// Creates a new serializer using the given <see cref="XLWorkbook"/> and <see cref="CsvConfiguration"/>.
         /// <remarks>
@@ -81,7 +81,7 @@ namespace CsvHelper.Excel
         {
             disposeWorksheet = true;
         }
-        
+
         /// <summary>
         /// Creates a new serializer using the given <see cref="IXLWorksheet"/>.
         /// <remarks>
@@ -92,7 +92,7 @@ namespace CsvHelper.Excel
         /// <param name="worksheet">The worksheet to write the data to.</param>
         /// <param name="configuration">The configuration</param>
         public ExcelSerializer(IXLWorksheet worksheet, Configuration configuration = null) : this((IXLRangeBase)worksheet, configuration) { }
-    
+
         /// <summary>
         /// Creates a new serializer using the given <see cref="IXLWorksheet"/>.
         /// </summary>
@@ -146,6 +146,21 @@ namespace CsvHelper.Excel
                 range.AsRange().Cell(currentRow + RowOffset, i + 1 + ColumnOffset).Value = ReplaceHexadecimalSymbols(record[i]);
             }
             currentRow++;
+        }
+
+        public async Task WriteAsync(string[] record)
+        {
+            await Task.Run(() => Write(record));
+        }
+
+        public void WriteLine()
+        {
+            Write(new[] { Environment.NewLine });
+        }
+
+        public async Task WriteLineAsync()
+        {
+            await Task.Run(() => WriteLine());
         }
 
         public IWritingContext Context { get; }

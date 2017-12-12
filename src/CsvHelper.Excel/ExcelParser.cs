@@ -1,4 +1,5 @@
 
+using System.IO;
 using System.Threading.Tasks;
 
 namespace CsvHelper.Excel
@@ -16,6 +17,11 @@ namespace CsvHelper.Excel
         private readonly bool shouldDisposeWorkbook;
         private readonly IXLRangeBase range;
         private bool isDisposed;
+        
+        /// <summary>
+        /// Reading context used by CsvReader.
+        /// </summary>
+        public IReadingContext Context { get; }
 
         /// <summary>
         /// Creates a new parser using a new <see cref="XLWorkbook"/> from the given <paramref name="path"/> and uses the given <paramref name="configuration"/>.
@@ -80,6 +86,7 @@ namespace CsvHelper.Excel
             Workbook = range.Worksheet.Workbook;
             this.range = range;
             Configuration = configuration ?? new Configuration();
+            Context = new ReadingContext(TextReader.Null, Configuration, false);
             FieldCount = range.CellsUsed().Max(cell => cell.Address.ColumnNumber) - range.CellsUsed().Min(cell => cell.Address.ColumnNumber) + 1;
         }
 
@@ -157,12 +164,12 @@ namespace CsvHelper.Excel
             return null;
         }
 
-        public Task<string[]> ReadAsync()
+        public async Task<string[]> ReadAsync()
         {
-            throw new NotImplementedException();
+            return await Task.Run(() => Read());
         }
 
-        public IReadingContext Context { get; }
+        
         IParserConfiguration IParser.Configuration
         {
             get { return Configuration; }
