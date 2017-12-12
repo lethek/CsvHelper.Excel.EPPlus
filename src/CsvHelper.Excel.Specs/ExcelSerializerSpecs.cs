@@ -62,7 +62,7 @@ namespace CsvHelper.Excel.Specs
                     Assert.Equal((double)Values[i].Age, Worksheet.Row(StartRow+i+1).Cell(StartColumn+1).Value);
                 }
             }
-            
+
             public void Dispose()
             {
                  Workbook?.Dispose();

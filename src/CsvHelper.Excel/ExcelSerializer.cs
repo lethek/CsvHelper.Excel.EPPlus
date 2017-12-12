@@ -1,4 +1,5 @@
 
+using System.IO;
 using System.Threading.Tasks;
 
 namespace CsvHelper.Excel
@@ -19,6 +20,8 @@ namespace CsvHelper.Excel
         private readonly bool disposeWorksheet;
         private bool disposed;
         private int currentRow = 1;
+
+        public IWritingContext Context { get; }
 
         /// <summary>
         /// Creates a new serializer using a new <see cref="XLWorkbook"/> saved to the given <paramref name="path"/>.
@@ -105,6 +108,7 @@ namespace CsvHelper.Excel
             Workbook = range.Worksheet.Workbook;
             this.range = range;
             Configuration = configuration ?? new Configuration();
+            Context = new WritingContext(TextWriter.Null, Configuration, false);
             Configuration.QuoteNoFields = true;
         }
 
@@ -155,19 +159,14 @@ namespace CsvHelper.Excel
 
         public void WriteLine()
         {
-            Write(new[] { Environment.NewLine });
         }
 
         public async Task WriteLineAsync()
         {
             await Task.Run(() => WriteLine());
         }
-
-        public IWritingContext Context { get; }
-        ISerializerConfiguration ISerializer.Configuration
-        {
-            get { return Configuration; }
-        }
+        
+        ISerializerConfiguration ISerializer.Configuration => Configuration;
 
         /// <summary>
         /// Replaces the hexadecimal symbols.
