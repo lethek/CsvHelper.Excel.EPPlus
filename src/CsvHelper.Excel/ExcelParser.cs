@@ -17,11 +17,6 @@ namespace CsvHelper.Excel
         private readonly bool shouldDisposeWorkbook;
         private readonly IXLRangeBase range;
         private bool isDisposed;
-        
-        /// <summary>
-        /// Reading context used by CsvReader.
-        /// </summary>
-        public IReadingContext Context { get; }
 
         /// <summary>
         /// Creates a new parser using a new <see cref="XLWorkbook"/> from the given <paramref name="path"/> and uses the given <paramref name="configuration"/>.
@@ -91,10 +86,18 @@ namespace CsvHelper.Excel
         }
 
         /// <summary>
+        /// Gets the reading context
+        /// </summary>
+        public IReadingContext Context { get; }
+
+        /// <summary>
         /// Gets the configuration.
         /// </summary>
         public Configuration Configuration { get; }
 
+        /// <summary>
+        /// Gets the filed reader
+        /// </summary>
         public IFieldReader FieldReader { get; }
 
         /// <summary>
@@ -164,16 +167,19 @@ namespace CsvHelper.Excel
             return null;
         }
 
+        /// <summary>
+        /// Reads asynchronously a recerod from the Excel file.
+        /// </summary>
+        /// <returns>
+        ///  A <see cref="T:String[]" /> of fields for the record read.
+        /// </returns>
+        /// <exception cref="ObjectDisposedException">Thrown if the parser has been disposed.</exception>
         public async Task<string[]> ReadAsync()
         {
             return await Task.Run(() => Read());
         }
 
-        
-        IParserConfiguration IParser.Configuration
-        {
-            get { return Configuration; }
-        }
+        IParserConfiguration IParser.Configuration => Configuration;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

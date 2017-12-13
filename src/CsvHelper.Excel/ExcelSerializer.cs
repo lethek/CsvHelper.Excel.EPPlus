@@ -7,7 +7,7 @@ namespace CsvHelper.Excel
     using System;
     using System.Text.RegularExpressions;
     using ClosedXML.Excel;
-    using CsvHelper.Configuration;
+    using Configuration;
 
     /// <summary>
     /// Defines methods used to serialize data into an Excel (2007+) file.
@@ -20,8 +20,6 @@ namespace CsvHelper.Excel
         private readonly bool disposeWorksheet;
         private bool disposed;
         private int currentRow = 1;
-
-        public IWritingContext Context { get; }
 
         /// <summary>
         /// Creates a new serializer using a new <see cref="XLWorkbook"/> saved to the given <paramref name="path"/>.
@@ -108,9 +106,14 @@ namespace CsvHelper.Excel
             Workbook = range.Worksheet.Workbook;
             this.range = range;
             Configuration = configuration ?? new Configuration();
-            Context = new WritingContext(TextWriter.Null, Configuration, false);
             Configuration.QuoteNoFields = true;
+            Context = new WritingContext(TextWriter.Null, Configuration, false);
         }
+
+        /// <summary>
+        /// Gets the writing context.
+        /// </summary>
+        public IWritingContext Context { get; }
 
         /// <summary>
         /// Gets the configuration.
@@ -152,15 +155,26 @@ namespace CsvHelper.Excel
             currentRow++;
         }
 
+        /// <summary>
+        /// Writes asynchronously a record to the Excel file.
+        /// </summary>
+        /// <param name="record">The record to write.</param>
+        /// <returns></returns>
         public async Task WriteAsync(string[] record)
         {
             await Task.Run(() => Write(record));
         }
 
+        /// <summary>
+        /// Implementation forced by CsvHelper : <see cref="IParser"/>.
+        /// </summary>
         public void WriteLine()
         {
         }
 
+        /// <summary>
+        /// Implementation forced by CsvHelper : <see cref="IParser"/>
+        /// </summary>
         public async Task WriteLineAsync()
         {
             await Task.Run(() => WriteLine());
