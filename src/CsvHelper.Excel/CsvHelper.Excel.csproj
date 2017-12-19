@@ -6,7 +6,7 @@
     <Authors>Chris Rodgers</Authors>
     <TargetFrameworks>
       net46;
-      netstandard2.0
+      netstandard2.0;
     </TargetFrameworks>
     <DebugType>portable</DebugType>
     <AssemblyName>CsvHelper.Excel</AssemblyName>
