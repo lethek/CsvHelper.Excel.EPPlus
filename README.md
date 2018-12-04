@@ -1,8 +1,11 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/bqh412kdla4peqsw?svg=true)](https://ci.appveyor.com/project/christophano/csvhelper-excel)
 # Csv Helper for Excel
 
-CsvHelper for Excel is an extension that links 2 excellent libraries, [CsvHelper](http://csvhelper.com) and [ClosedXml](https://github.com/closedxml/closedxml).
-It provides an implementation of `ICsvParser` and `ICsvSerializer` from [CsvHelper](http://csvhelper.com) that read and write to Excel using [ClosedXml](https://github.com/closedxml/closedxml).
+***This project has been forked from https://github.com/christophano/CsvHelper.Excel and heavily modified; primarily so that it can be used with the latest version of [CsvHelper](https://joshclose.github.io/CsvHelper/) and uses [EPPlus](https://github.com/JanKallman/EPPlus) instead of ClosedXml. Original documentation follows:***
+
+
+CsvHelper for Excel is an extension that links 2 excellent libraries, [CsvHelper](https://joshclose.github.io/CsvHelper/) and [ClosedXml](https://github.com/closedxml/closedxml).
+It provides an implementation of `ICsvParser` and `ICsvSerializer` from [CsvHelper](https://joshclose.github.io/CsvHelper/) that read and write to Excel using [ClosedXml](https://github.com/closedxml/closedxml).
 
 ### ExcelParser
 `ExcelParser` implements `ICsvParser` and allows you to specify the path of the workbook, pass an instance of `XLWorkbook` that you have already loaded, or a specific instance of `IXLWorksheet` to use as the data source.

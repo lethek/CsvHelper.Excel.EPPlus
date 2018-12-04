@@ -1,13 +1,16 @@
-
+using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
+using OfficeOpenXml;
+
 
 namespace CsvHelper.Excel
 {
-    using System;
-    using System.Text.RegularExpressions;
-    using ClosedXML.Excel;
+
     using Configuration;
+
 
     /// <summary>
     /// Defines methods used to serialize data into an Excel (2007+) file.
@@ -15,105 +18,109 @@ namespace CsvHelper.Excel
     public class ExcelSerializer : ISerializer
     {
         private readonly string path;
-        private readonly bool disposeWorkbook;
-        private readonly IXLRangeBase range;
-        private readonly bool disposeWorksheet;
+        private readonly bool disposePackage;
+        private readonly ExcelRangeBase range;
         private bool disposed;
         private int currentRow = 1;
 
+
         /// <summary>
         /// Creates a new serializer using a new <see cref="XLWorkbook"/> saved to the given <paramref name="path"/>.
         /// <remarks>
-        /// The workbook will not be saved until the serializer is disposed.
+        /// The package will not be saved until the serializer is disposed.
         /// </remarks>
         /// </summary>
-        /// <param name="path">The path to which to save the workbook.</param>
+        /// <param name="path">The path to which to save the package.</param>
         /// <param name="configuration">The configuration</param>
         public ExcelSerializer(string path, Configuration configuration = null)
-            : this(new XLWorkbook(XLEventTracking.Disabled), configuration)
+            : this(new ExcelPackage(), configuration)
         {
             this.path = path;
-            disposeWorkbook = true;
+            disposePackage = true;
         }
+
 
         /// <summary>
         /// Creates a new serializer using a new <see cref="XLWorkbook"/> saved to the given <paramref name="path"/>.
         /// <remarks>
-        /// The workbook will not be saved until the serializer is disposed.
+        /// The package will not be saved until the serializer is disposed.
         /// </remarks>
         /// </summary>
-        /// <param name="path">The path to which to save the workbook.</param>
+        /// <param name="path">The path to which to save the package.</param>
         /// <param name="sheetName">The name of the sheet to which to save</param>
-        public ExcelSerializer(string path, string sheetName) : this(new XLWorkbook(XLEventTracking.Disabled).AddWorksheet(sheetName))
+        public ExcelSerializer(string path, string sheetName)
+            : this(new ExcelPackage(), sheetName)
         {
             this.path = path;
-            disposeWorkbook = true;
+            disposePackage = true;
         }
+
 
         /// <summary>
         /// Creates a new serializer using the given <see cref="XLWorkbook"/> and <see cref="CsvConfiguration"/>.
         /// <remarks>
         /// The <paramref name="workbook"/> will <b><i>not</i></b> be disposed of when the serializer is disposed.
-        /// The workbook will <b><i>not</i></b> be saved by the serializer.
-        /// A new worksheet will be added to the workbook.
+        /// The package will <b><i>not</i></b> be saved by the serializer.
+        /// A new worksheet will be added to the package.
         /// </remarks>
         /// </summary>
-        /// <param name="workbook">The workbook to write the data to.</param>
+        /// <param name="workbook">The package to write the data to.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelSerializer(XLWorkbook workbook, Configuration configuration = null)
-            : this(workbook, "Export", configuration)
-        {
-            disposeWorksheet = true;
-        }
+        public ExcelSerializer(ExcelPackage package, Configuration configuration = null)
+            : this(package, "Export", configuration) { }
+
 
         /// <summary>
         /// Creates a new serializer using the given <see cref="XLWorkbook"/> and <see cref="CsvConfiguration"/>.
         /// <remarks>
-        /// The <paramref name="workbook"/> will <b><i>not</i></b> be disposed of when the serializer is disposed.
-        /// The workbook will <b><i>not</i></b> be saved by the serializer.
-        /// A new worksheet will be added to the workbook.
+        /// The <paramref name="package"/> will <b><i>not</i></b> be disposed of when the serializer is disposed.
+        /// The package will <b><i>not</i></b> be saved by the serializer.
+        /// A new worksheet will be added to the package.
         /// </remarks>
         /// </summary>
-        /// <param name="workbook">The workbook to write the data to.</param>
+        /// <param name="package">The package to write the data to.</param>
         /// <param name="sheetName">The name of the sheet to write to.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelSerializer(XLWorkbook workbook, string sheetName, Configuration configuration = null)
-            : this(workbook.GetOrAddWorksheet(sheetName), configuration)
-        {
-            disposeWorksheet = true;
-        }
+        public ExcelSerializer(ExcelPackage package, string sheetName, Configuration configuration = null)
+            : this(package, package.GetOrAddWorksheet(sheetName), configuration) { }
+
 
         /// <summary>
         /// Creates a new serializer using the given <see cref="IXLWorksheet"/>.
         /// <remarks>
         /// The <paramref name="worksheet"/> will <b><i>not</i></b> be disposed of when the serializer is disposed.
-        /// The workbook will <b><i>not</i></b> be saved by the serializer.
+        /// The package will <b><i>not</i></b> be saved by the serializer.
         /// </remarks>
         /// </summary>
         /// <param name="worksheet">The worksheet to write the data to.</param>
         /// <param name="configuration">The configuration</param>
-        public ExcelSerializer(IXLWorksheet worksheet, Configuration configuration = null) : this((IXLRangeBase)worksheet, configuration) { }
+        public ExcelSerializer(ExcelPackage package, ExcelWorksheet worksheet, Configuration configuration = null)
+            : this(package, (ExcelRangeBase)worksheet.Cells, configuration) { }
+
 
         /// <summary>
         /// Creates a new serializer using the given <see cref="IXLWorksheet"/>.
         /// </summary>
         /// <param name="range">The range to write the data to.</param>
         /// <param name="configuration">The configuration</param>
-        public ExcelSerializer(IXLRange range, Configuration configuration = null) : this((IXLRangeBase)range, configuration) { }
+        public ExcelSerializer(ExcelPackage package, ExcelRange range, Configuration configuration = null)
+            : this(package, (ExcelRangeBase)range, configuration) { }
 
-        private ExcelSerializer(IXLRangeBase range, Configuration configuration)
+
+        private ExcelSerializer(ExcelPackage package, ExcelRangeBase range, Configuration configuration)
         {
-            Workbook = range.Worksheet.Workbook;
+            Package = package;
             this.range = range;
             Configuration = configuration ?? new Configuration();
             Configuration.QuoteNoFields = true;
             Context = new WritingContext(TextWriter.Null, Configuration, false);
         }
 
+
         /// <summary>
         /// Gets the writing context.
         /// </summary>
-        public IWritingContext Context { get; }
+        public WritingContext Context { get; }
 
         /// <summary>
         /// Gets the configuration.
@@ -121,12 +128,12 @@ namespace CsvHelper.Excel
         public Configuration Configuration { get; }
 
         /// <summary>
-        /// Gets the workbook to which the data is being written.
+        /// Gets the package to which the data is being written.
         /// </summary>
         /// <value>
-        /// The workbook.
+        /// The package.
         /// </value>
-        public XLWorkbook Workbook { get; }
+        public ExcelPackage Package { get; }
 
         /// <summary>
         /// Gets and sets the number of rows to offset the start position from.
@@ -138,6 +145,7 @@ namespace CsvHelper.Excel
         /// </summary>
         public int ColumnOffset { get; set; } = 0;
 
+
         /// <summary>
         /// Writes a record to the Excel file.
         /// </summary>
@@ -148,39 +156,47 @@ namespace CsvHelper.Excel
         public virtual void Write(string[] record)
         {
             CheckDisposed();
-            for (var i = 0; i < record.Length; i++)
-            {
-                range.AsRange().Cell(currentRow + RowOffset, i + 1 + ColumnOffset).Value = ReplaceHexadecimalSymbols(record[i]);
+            
+            for (var i = 0; i < record.Length; i++) {
+                var row = range.Start.Row + currentRow + RowOffset - 1;
+                var column = range.Start.Column + ColumnOffset + i;
+                range.Worksheet.SetValue(row, column, ReplaceHexadecimalSymbols(record[i]));
             }
+
             currentRow++;
         }
+
 
         /// <summary>
         /// Writes asynchronously a record to the Excel file.
         /// </summary>
         /// <param name="record">The record to write.</param>
         /// <returns></returns>
-        public async Task WriteAsync(string[] record)
+        public Task WriteAsync(string[] record)
         {
-            await Task.Run(() => Write(record));
+            Write(record);
+            return Task.CompletedTask;
         }
+
 
         /// <summary>
         /// Implementation forced by CsvHelper : <see cref="IParser"/>.
         /// </summary>
-        public void WriteLine()
-        {
-        }
+        public void WriteLine() { }
+
 
         /// <summary>
         /// Implementation forced by CsvHelper : <see cref="IParser"/>
         /// </summary>
-        public async Task WriteLineAsync()
+        public Task WriteLineAsync()
         {
-            await Task.Run(() => WriteLine());
+            WriteLine();
+            return Task.CompletedTask;
         }
-        
+
+
         ISerializerConfiguration ISerializer.Configuration => Configuration;
+
 
         /// <summary>
         /// Replaces the hexadecimal symbols.
@@ -193,6 +209,7 @@ namespace CsvHelper.Excel
             return Regex.Replace(text, "[\x00-\x08\x0B\x0C\x0E-\x1F]", String.Empty, RegexOptions.Compiled);
         }
 
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -202,6 +219,7 @@ namespace CsvHelper.Excel
             GC.SuppressFinalize(this);
         }
 
+
         /// <summary>
         /// Finalizes an instance of the <see cref="ExcelSerializer"/> class.
         /// </summary>
@@ -210,6 +228,7 @@ namespace CsvHelper.Excel
             Dispose(false);
         }
 
+
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
@@ -217,17 +236,16 @@ namespace CsvHelper.Excel
         protected virtual void Dispose(bool disposing)
         {
             if (disposed) return;
-            if (disposing)
-            {
-                if (disposeWorksheet) range.Worksheet.Dispose();
-                if (disposeWorkbook)
-                {
-                    Workbook.SaveAs(path);
-                    Workbook.Dispose();
+            if (disposing) {
+                if (disposePackage) {
+                    Package?.SaveAs(new FileInfo(path));
+                    Package?.Dispose();
                 }
             }
+
             disposed = true;
         }
+
 
         /// <summary>
         /// Checks if the instance has been disposed of.
@@ -237,10 +255,10 @@ namespace CsvHelper.Excel
         /// </exception>
         protected virtual void CheckDisposed()
         {
-            if (disposed)
-            {
+            if (disposed) {
                 throw new ObjectDisposedException(GetType().ToString());
             }
         }
     }
+
 }

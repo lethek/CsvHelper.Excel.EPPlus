@@ -1,22 +1,24 @@
-
 using System.IO;
 using System.Threading.Tasks;
 
+using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing;
+
+
 namespace CsvHelper.Excel
 {
+
     using System;
     using System.Linq;
-    using ClosedXML.Excel;
+
     using Configuration;
+
 
     /// <summary>
     /// Parses an Excel file.
     /// </summary>
     public class ExcelParser : IParser
     {
-        private readonly bool shouldDisposeWorkbook;
-        private readonly IXLRangeBase range;
-        private bool isDisposed;
 
         /// <summary>
         /// Creates a new parser using a new <see cref="XLWorkbook"/> from the given <paramref name="path"/> and uses the given <paramref name="configuration"/>.
@@ -24,10 +26,11 @@ namespace CsvHelper.Excel
         /// <param name="path">The path.</param>
         /// <param name="configuration">The configuration.</param>
         public ExcelParser(string path, Configuration configuration = null)
-            : this(new XLWorkbook(path, XLEventTracking.Disabled), configuration)
+            : this(new ExcelPackage(new FileInfo(path)), configuration)
         {
-            shouldDisposeWorkbook = true;
+            _shouldDisposeWorkbook = true;
         }
+
 
         /// <summary>
         /// Creates a new parser using a new <see cref="XLWorkbook"/> from the given <paramref name="path"/> and uses the given <paramref name="configuration"/>.
@@ -36,10 +39,19 @@ namespace CsvHelper.Excel
         /// <param name="sheetName">The name of the sheet to import data from.</param>
         /// <param name="configuration">The configuration.</param>
         public ExcelParser(string path, string sheetName, Configuration configuration = null)
-            : this(new XLWorkbook(path, XLEventTracking.Disabled), sheetName, configuration)
+            : this(new ExcelPackage(new FileInfo(path)), sheetName, configuration)
         {
-            shouldDisposeWorkbook = true;
+            _shouldDisposeWorkbook = true;
         }
+
+
+        public ExcelParser(ExcelPackage package, Configuration configuration = null)
+            : this(package.Workbook, configuration) { }
+
+
+        public ExcelParser(ExcelPackage package, string sheetName, Configuration configuration = null)
+            : this(package.Workbook, sheetName, configuration) { }
+
 
         /// <summary>
         /// Creates a new parser using the given <see cref="XLWorkbook"/> and <see cref="CsvConfiguration"/>.
@@ -49,7 +61,9 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="workbook">The <see cref="XLWorkbook"/> with the data.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(XLWorkbook workbook, Configuration configuration = null) : this(workbook.Worksheets.First(), configuration) { }
+        public ExcelParser(ExcelWorkbook workbook, Configuration configuration = null)
+            : this(workbook.Worksheets.First(), configuration) { }
+
 
         /// <summary>
         /// Creates a new parser using the given <see cref="XLWorkbook"/> and <see cref="CsvConfiguration"/>.
@@ -60,35 +74,42 @@ namespace CsvHelper.Excel
         /// <param name="workbook">The <see cref="XLWorkbook"/> with the data.</param>
         /// <param name="sheetName">The name of the sheet to import from.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(XLWorkbook workbook, string sheetName, Configuration configuration = null) : this(workbook.Worksheet(sheetName), configuration) { }
+        public ExcelParser(ExcelWorkbook workbook, string sheetName, Configuration configuration = null)
+            : this(workbook.Worksheets[sheetName], configuration) { }
+
 
         /// <summary>
         /// Creates a new parser using the given <see cref="IXLWorksheet"/> and <see cref="CsvConfiguration"/>.
         /// </summary>
         /// <param name="worksheet">The <see cref="IXLWorksheet"/> with the data.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(IXLWorksheet worksheet, Configuration configuration = null) : this((IXLRangeBase)worksheet, configuration) { }
+        public ExcelParser(ExcelWorksheet worksheet, Configuration configuration = null)
+            : this((ExcelRangeBase)worksheet.Cells, configuration) { }
+
 
         /// <summary>
         /// Creates a new parser using the given <see cref="IXLRange"/> and <see cref="CsvConfiguration"/>.
         /// </summary>
         /// <param name="range">The <see cref="IXLRange"/> with the data.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(IXLRange range, Configuration configuration = null) : this((IXLRangeBase)range, configuration) { }
+        public ExcelParser(ExcelRange range, Configuration configuration = null)
+            : this((ExcelRangeBase)range, configuration) { }
 
-        private ExcelParser(IXLRangeBase range, Configuration configuration)
+
+        private ExcelParser(ExcelRangeBase range, Configuration configuration)
         {
             Workbook = range.Worksheet.Workbook;
-            this.range = range;
+            this._range = range;
             Configuration = configuration ?? new Configuration();
             Context = new ReadingContext(TextReader.Null, Configuration, false);
-            FieldCount = range.CellsUsed().Max(cell => cell.Address.ColumnNumber) - range.CellsUsed().Min(cell => cell.Address.ColumnNumber) + 1;
+            FieldCount = range.Worksheet.Dimension.Columns;
         }
+
 
         /// <summary>
         /// Gets the reading context
         /// </summary>
-        public IReadingContext Context { get; }
+        public ReadingContext Context { get; }
 
         /// <summary>
         /// Gets the configuration.
@@ -106,24 +127,12 @@ namespace CsvHelper.Excel
         /// <value>
         /// The workbook.
         /// </value>
-        public XLWorkbook Workbook { get; }
+        public ExcelWorkbook Workbook { get; }
 
         /// <summary>
         /// Gets the field count.
         /// </summary>
         public int FieldCount { get; }
-
-        /// <summary>
-        /// Gets the character position that the parser is currently on.
-        /// <remarks>This feature is unused.</remarks>
-        /// </summary>
-        public long CharPosition => -1;
-
-        /// <summary>
-        /// Gets the byte position that the parser is currently on.
-        /// <remarks>This feature is unused.</remarks>
-        /// </summary>
-        public long BytePosition => -1;
 
         /// <summary>
         /// Gets the row of the Excel file that the parser is currently on.
@@ -140,10 +149,6 @@ namespace CsvHelper.Excel
         /// </summary>
         public int ColumnOffset { get; set; } = 0;
 
-        /// <summary>
-        /// Gets the raw row for the current record that was parsed.
-        /// </summary>
-        public virtual string RawRecord => range.AsRange().Row(Row).Cells(1, FieldCount).ToString();
 
         /// <summary>
         /// Reads a record from the Excel file.
@@ -155,17 +160,28 @@ namespace CsvHelper.Excel
         public virtual string[] Read()
         {
             CheckDisposed();
-            var row = range.AsRange().Row(Row + RowOffset);
-            if (row.CellsUsed().Any())
-            {
-                var result = row.Cells(1 + ColumnOffset, FieldCount + ColumnOffset)
-                    .Select(cell => cell.Value.ToString())
-                    .ToArray();
+
+            var fromRow = _range.Start.Row + Row + RowOffset - 1;
+            var toRow = _range.Start.Row + Row + RowOffset - 1;
+            var fromColumn = _range.Start.Column + ColumnOffset;
+            var toColumn = _range.Start.Column + ColumnOffset + FieldCount - 1;
+
+            var subRange = _range.Worksheet.Cells[fromRow, fromColumn, toRow, toColumn];
+
+            subRange.Calculate(DefaultExcelCalculationOption);
+
+            var results = subRange
+                .Select(c => c.GetValue<string>())
+                .ToArray();
+
+            if (results.Any()) {
                 Row++;
-                return result;
+                return results;
             }
+
             return null;
         }
+
 
         /// <summary>
         /// Reads asynchronously a recerod from the Excel file.
@@ -174,12 +190,12 @@ namespace CsvHelper.Excel
         ///  A <see cref="T:String[]" /> of fields for the record read.
         /// </returns>
         /// <exception cref="ObjectDisposedException">Thrown if the parser has been disposed.</exception>
-        public async Task<string[]> ReadAsync()
-        {
-            return await Task.Run(() => Read());
-        }
+        public Task<string[]> ReadAsync()
+            => Task.FromResult(Read());
+
 
         IParserConfiguration IParser.Configuration => Configuration;
+
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -190,6 +206,7 @@ namespace CsvHelper.Excel
             GC.SuppressFinalize(this);
         }
 
+
         /// <summary>
         /// Finalizes an instance of the <see cref="ExcelParser"/> class.
         /// </summary>
@@ -198,19 +215,21 @@ namespace CsvHelper.Excel
             Dispose(false);
         }
 
+
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (isDisposed) return;
-            if (disposing)
-            {
-                if (shouldDisposeWorkbook) Workbook.Dispose();
+            if (_isDisposed) return;
+            if (disposing) {
+                if (_shouldDisposeWorkbook) Workbook.Dispose();
             }
-            isDisposed = true;
+
+            _isDisposed = true;
         }
+
 
         /// <summary>
         /// Checks if the instance has been disposed of.
@@ -218,10 +237,17 @@ namespace CsvHelper.Excel
         /// <exception cref="ObjectDisposedException" />
         protected virtual void CheckDisposed()
         {
-            if (isDisposed)
-            {
+            if (_isDisposed) {
                 throw new ObjectDisposedException(GetType().ToString());
             }
         }
+
+
+        private readonly bool _shouldDisposeWorkbook;
+        private readonly ExcelRangeBase _range;
+        private bool _isDisposed;
+
+        private static readonly ExcelCalculationOption DefaultExcelCalculationOption = new ExcelCalculationOption();
     }
+
 }

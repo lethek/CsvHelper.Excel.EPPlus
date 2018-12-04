@@ -1,34 +1,31 @@
-﻿
+﻿using System.IO;
 using System.Runtime.CompilerServices;
+
+using OfficeOpenXml;
 
 [assembly: InternalsVisibleTo("CsvHelper.Excel.Specs")]
 
+
 namespace CsvHelper.Excel
 {
-    using System.IO;
-    using ClosedXML.Excel;
 
-    internal static class Helpers
+    public static class Helpers
     {
-        public static XLWorkbook GetOrCreateWorkbook(string path, string worksheetName)
+        public static ExcelPackage GetOrCreatePackage(string path, string worksheetName)
         {
-            if (!File.Exists(path))
-            {
-                var workbook = new XLWorkbook(XLEventTracking.Disabled);
-                workbook.GetOrAddWorksheet(worksheetName);
-                workbook.SaveAs(path);
-                return workbook;
+            var file = new FileInfo(path);
+            if (!file.Exists) {
+                using (var package = new ExcelPackage(file)) {
+                    package.GetOrAddWorksheet(worksheetName);
+                    package.Save();
+                }
             }
-            return new XLWorkbook(path, XLEventTracking.Disabled);
+            return new ExcelPackage(file);
         }
 
-        public static IXLWorksheet GetOrAddWorksheet(this XLWorkbook workbook, string sheetName)
-        {
-            if (!workbook.TryGetWorksheet(sheetName, out var worksheet))
-            {
-                worksheet = workbook.AddWorksheet(sheetName);
-            }
-            return worksheet;
-        }
+
+        public static ExcelWorksheet GetOrAddWorksheet(this ExcelPackage package, string sheetName)
+            => package.Workbook.Worksheets[sheetName] ?? package.Workbook.Worksheets.Add(sheetName);
     }
+
 }
