@@ -14,7 +14,7 @@
     <PackageId>CsvHelper.Excel</PackageId>
     <PackageTags>CSV;CSVHelper;Excel;EPPlus</PackageTags>
     <PackageProjectUrl>https://github.com/christophano/CsvHelper.Excel</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/christophano/CsvHelper.Excel/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Version>2.0.0-lethek</Version>
   </PropertyGroup>

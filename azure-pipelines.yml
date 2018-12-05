@@ -8,23 +8,35 @@ pool:
 
 variables:
   solution: '**/*.sln'
+  solutionFolder: './src'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
 steps:
-- task: NuGetToolInstaller@0
+- script: dotnet restore $(solutionFolder)
+  displayName: 'dotnet restore'
+
+- script: dotnet build $(solutionFolder) --configuration $(buildConfiguration)
+  displayName: 'dotnet build $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet test $(buildConfiguration)'
+  inputs:
+    command: test
+    projects: '**/*Tests/*.csproj'
+    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
+
+- script: dotnet pack $(solutionFolder) --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+  displayName: 'dotnet pack $(buildConfiguration)'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'publish artifacts'
 
 - task: NuGetCommand@2
+  displayName: 'nuget push'
   inputs:
-    restoreSolution: '$(solution)'
-
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: push
+    nuGetFeedType: external
+    publishFeedCredentials: 'MyGet (lethek)'
+    versioningScheme: byEnvVar
+    versionEnvVar: version
