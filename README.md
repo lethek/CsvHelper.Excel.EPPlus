@@ -1,7 +1,12 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/bqh412kdla4peqsw?svg=true)](https://ci.appveyor.com/project/christophano/csvhelper-excel)
+[![Build Status](https://dev.azure.com/lethek0447/lethek/_apis/build/status/lethek.CsvHelper.Excel)](https://dev.azure.com/lethek0447/lethek/_build/latest?definitionId=2)
+
 # Csv Helper for Excel
 
-***This project has been forked from https://github.com/christophano/CsvHelper.Excel and heavily modified; primarily so that it can be used with the latest version of [CsvHelper](https://joshclose.github.io/CsvHelper/) and uses [EPPlus](https://github.com/JanKallman/EPPlus) instead of ClosedXml. Original documentation follows:***
+***This project has been forked from https://github.com/christophano/CsvHelper.Excel and heavily modified; primarily so that it can be used with the latest version of [CsvHelper](https://joshclose.github.io/CsvHelper/) and uses [EPPlus](https://github.com/JanKallman/EPPlus) instead of ClosedXml.***
+
+***NuGet packages of this fork are available from MyGet:  https://www.myget.org/feed/lethek/package/nuget/CsvHelper.Excel***
+
+***Original documentation follows:***
 
 
 CsvHelper for Excel is an extension that links 2 excellent libraries, [CsvHelper](https://joshclose.github.io/CsvHelper/) and [ClosedXml](https://github.com/closedxml/closedxml).
