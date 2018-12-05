@@ -1,5 +1,4 @@
-﻿
-namespace CsvHelper.Excel.Specs
+﻿namespace CsvHelper.Excel.Tests
 {
     public class Person
     {

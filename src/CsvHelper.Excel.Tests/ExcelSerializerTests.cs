@@ -6,10 +6,10 @@ using OfficeOpenXml;
 using Xunit;
 
 
-namespace CsvHelper.Excel.Specs
+namespace CsvHelper.Excel.Tests
 {
 
-    public class ExcelSerializerSpecs
+    public class ExcelSerializerTests
     {
         public abstract class Spec : IDisposable
         {

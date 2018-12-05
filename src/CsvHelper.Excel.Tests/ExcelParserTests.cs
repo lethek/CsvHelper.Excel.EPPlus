@@ -1,7 +1,7 @@
 ﻿using OfficeOpenXml;
 
 
-namespace CsvHelper.Excel.Specs
+namespace CsvHelper.Excel.Tests
 {
 
     using System;
@@ -12,7 +12,7 @@ namespace CsvHelper.Excel.Specs
     using Xunit;
 
 
-    public class ExcelParserSpecs
+    public class ExcelParserTests
     {
         public abstract class Spec : IDisposable
         {
