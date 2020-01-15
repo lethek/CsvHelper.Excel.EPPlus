@@ -14,9 +14,9 @@ namespace CsvHelper.Excel.Tests
         public abstract class Spec : IDisposable
         {
             protected readonly Person[] Values = {
-                new Person { Name = "Bill", Age = 20 },
-                new Person { Name = "Ben", Age = 20 },
-                new Person { Name = "Weed", Age = 30 }
+                new Person { Name = "Bill", Id = null, Age = 20, Empty = "" },
+                new Person { Name = "Ben", Id = null, Age = 20, Empty = null },
+                new Person { Name = "Weed", Id = null, Age = 30, Empty = "" }
             };
 
             private ExcelPackage package;
@@ -54,8 +54,11 @@ namespace CsvHelper.Excel.Tests
             [Fact]
             public void TheExcelWorkbookHeadersAreCorrect()
             {
-                Assert.Equal(nameof(Person.Name), Worksheet.GetValue(StartRow, StartColumn));
-                Assert.Equal(nameof(Person.Age), Worksheet.GetValue(StartRow, StartColumn + 1));
+                int column = StartColumn;
+                Assert.Equal(nameof(Person.Name), Worksheet.GetValue(StartRow, column++));
+                Assert.Equal(nameof(Person.Id), Worksheet.GetValue(StartRow, column++));
+                Assert.Equal(nameof(Person.Age), Worksheet.GetValue(StartRow, column++));
+                Assert.Equal(nameof(Person.Empty), Worksheet.GetValue(StartRow, column++));
             }
 
 
@@ -63,8 +66,11 @@ namespace CsvHelper.Excel.Tests
             public void TheExcelWorkbookValuesAreCorrect()
             {
                 for (int i = 0; i < Values.Length; i++) {
-                    Assert.Equal(Values[i].Name, Worksheet.GetValue(StartRow + i + 1, StartColumn));
-                    Assert.Equal(Values[i].Age, Worksheet.GetValue<int>(StartRow + i + 1, StartColumn + 1));
+                    int column = StartColumn;
+                    Assert.Equal(Values[i].Name, Worksheet.GetValue(StartRow + i + 1, column++));
+                    Assert.Equal(Values[i].Id, Worksheet.GetValue<int?>(StartRow + i + 1, column++));
+                    Assert.Equal(Values[i].Age, Worksheet.GetValue<int>(StartRow + i + 1, column++));
+                    Assert.Equal(Values[i].Empty ?? "", Worksheet.GetValue<string>(StartRow + i + 1, column++));
                 }
             }
 

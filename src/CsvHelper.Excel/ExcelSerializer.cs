@@ -112,7 +112,7 @@ namespace CsvHelper.Excel
             Package = package;
             this.range = range;
             Configuration = configuration ?? new Configuration();
-            Configuration.QuoteNoFields = true;
+            Configuration.ShouldQuote = (field, ctx) => false;
             Context = new WritingContext(TextWriter.Null, Configuration, false);
         }
 

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -167,24 +168,39 @@ namespace CsvHelper.Excel
             var toColumn = _range.Start.Column + ColumnOffset + FieldCount - 1;
 
             var subRange = _range.Worksheet.Cells[fromRow, fromColumn, toRow, toColumn];
-
             subRange.Calculate(DefaultExcelCalculationOption);
 
-            var results = subRange
-                .Select(c => c.GetValue<string>())
-                .ToArray();
+            int expectIndex = 0;
+            var values = new List<string>();
+            foreach (var cell in subRange) {
+                //If the current cell is further ahead than expected then OpenOfficeXml has skipped 1 or more empty cells: insert nulls for those
+                int actualIndex = (cell.Start.Row - subRange.Start.Row) * FieldCount + (cell.Start.Column - subRange.Start.Column);
+                int indexDelta = actualIndex - expectIndex++;
+                if (indexDelta > 0) {
+                    values.AddRange(Enumerable.Repeat((string)null, indexDelta));
+                    expectIndex = actualIndex;
+                }
 
-            if (results.Any()) {
-                Row++;
-                return results;
+                //Now we can add the value of the current cell
+                values.Add(cell.GetValue<string>());
             }
 
-            return null;
+            if (!values.Any()) {
+                return null;
+            }
+
+            //If the number of values is fewer than expected then OpenOfficeXml has skipped 1 or more empty trailing cells: append nulls for those
+            if (values.Count < FieldCount) {
+                values.AddRange(Enumerable.Repeat((string)null, FieldCount - values.Count));
+            }
+
+            Row++;
+            return values.ToArray();
         }
 
 
         /// <summary>
-        /// Reads asynchronously a recerod from the Excel file.
+        /// Pretends to asynchronously read a record from the Excel file.
         /// </summary>
         /// <returns>
         ///  A <see cref="T:String[]" /> of fields for the record read.
