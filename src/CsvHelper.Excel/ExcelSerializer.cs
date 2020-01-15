@@ -25,7 +25,7 @@ namespace CsvHelper.Excel
 
 
         /// <summary>
-        /// Creates a new serializer using a new <see cref="XLWorkbook"/> saved to the given <paramref name="path"/>.
+        /// Creates a new serializer using a new <see cref="ExcelPackage"/> saved to the given <paramref name="path"/>.
         /// <remarks>
         /// The package will not be saved until the serializer is disposed.
         /// </remarks>
@@ -41,7 +41,7 @@ namespace CsvHelper.Excel
 
 
         /// <summary>
-        /// Creates a new serializer using a new <see cref="XLWorkbook"/> saved to the given <paramref name="path"/>.
+        /// Creates a new serializer using a new <see cref="ExcelPackage"/> saved to the given <paramref name="path"/>.
         /// <remarks>
         /// The package will not be saved until the serializer is disposed.
         /// </remarks>
@@ -57,21 +57,21 @@ namespace CsvHelper.Excel
 
 
         /// <summary>
-        /// Creates a new serializer using the given <see cref="XLWorkbook"/> and <see cref="CsvConfiguration"/>.
+        /// Creates a new serializer using the given <see cref="ExcelPackage"/> and <see cref="Configuration"/>.
         /// <remarks>
-        /// The <paramref name="workbook"/> will <b><i>not</i></b> be disposed of when the serializer is disposed.
+        /// The <paramref name="package"/> will <b><i>not</i></b> be disposed of when the serializer is disposed.
         /// The package will <b><i>not</i></b> be saved by the serializer.
         /// A new worksheet will be added to the package.
         /// </remarks>
         /// </summary>
-        /// <param name="workbook">The package to write the data to.</param>
+        /// <param name="package">The package to write the data to.</param>
         /// <param name="configuration">The configuration.</param>
         public ExcelSerializer(ExcelPackage package, Configuration configuration = null)
             : this(package, "Export", configuration) { }
 
 
         /// <summary>
-        /// Creates a new serializer using the given <see cref="XLWorkbook"/> and <see cref="CsvConfiguration"/>.
+        /// Creates a new serializer using the given <see cref="ExcelPackage"/> and <see cref="Configuration"/>.
         /// <remarks>
         /// The <paramref name="package"/> will <b><i>not</i></b> be disposed of when the serializer is disposed.
         /// The package will <b><i>not</i></b> be saved by the serializer.
@@ -86,12 +86,13 @@ namespace CsvHelper.Excel
 
 
         /// <summary>
-        /// Creates a new serializer using the given <see cref="IXLWorksheet"/>.
+        /// Creates a new serializer using the given <see cref="ExcelPackage"/> and <see cref="ExcelWorksheet"/>.
         /// <remarks>
         /// The <paramref name="worksheet"/> will <b><i>not</i></b> be disposed of when the serializer is disposed.
         /// The package will <b><i>not</i></b> be saved by the serializer.
         /// </remarks>
         /// </summary>
+        /// <param name="package">The package to write the data to.</param>
         /// <param name="worksheet">The worksheet to write the data to.</param>
         /// <param name="configuration">The configuration</param>
         public ExcelSerializer(ExcelPackage package, ExcelWorksheet worksheet, Configuration configuration = null)
@@ -99,8 +100,9 @@ namespace CsvHelper.Excel
 
 
         /// <summary>
-        /// Creates a new serializer using the given <see cref="IXLWorksheet"/>.
+        /// Creates a new serializer using the given <see cref="ExcelPackage"/> and <see cref="ExcelRange"/>.
         /// </summary>
+        /// <param name="package">The package to write the data to.</param>
         /// <param name="range">The range to write the data to.</param>
         /// <param name="configuration">The configuration</param>
         public ExcelSerializer(ExcelPackage package, ExcelRange range, Configuration configuration = null)
@@ -156,7 +158,7 @@ namespace CsvHelper.Excel
         public virtual void Write(string[] record)
         {
             CheckDisposed();
-            
+
             for (var i = 0; i < record.Length; i++) {
                 var row = range.Start.Row + currentRow + RowOffset - 1;
                 var column = range.Start.Column + ColumnOffset + i;

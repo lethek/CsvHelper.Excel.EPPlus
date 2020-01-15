@@ -22,7 +22,7 @@ namespace CsvHelper.Excel
     {
 
         /// <summary>
-        /// Creates a new parser using a new <see cref="XLWorkbook"/> from the given <paramref name="path"/> and uses the given <paramref name="configuration"/>.
+        /// Creates a new parser using a new <see cref="ExcelPackage"/> from the given <paramref name="path"/> and uses the given <paramref name="configuration"/>.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="configuration">The configuration.</param>
@@ -34,7 +34,7 @@ namespace CsvHelper.Excel
 
 
         /// <summary>
-        /// Creates a new parser using a new <see cref="XLWorkbook"/> from the given <paramref name="path"/> and uses the given <paramref name="configuration"/>.
+        /// Creates a new parser using a new <see cref="ExcelPackage"/> from the given <paramref name="path"/> and uses the given <paramref name="configuration"/>.
         /// </summary>
         /// <param name="path">The path to the workbook.</param>
         /// <param name="sheetName">The name of the sheet to import data from.</param>
@@ -46,33 +46,44 @@ namespace CsvHelper.Excel
         }
 
 
+        /// <summary>
+        /// Creates a new parser using the given <see cref="ExcelPackage"/> and <see cref="Configuration"/>.
+        /// <remarks>
+        /// Will attempt to read the data from the first worksheet in the workbook.
+        /// </remarks>
+        /// </summary>
+        /// <param name="package">The <see cref="ExcelPackage"/> with the data.</param>
+        /// <param name="configuration">The configuration.</param>
         public ExcelParser(ExcelPackage package, Configuration configuration = null)
             : this(package.Workbook, configuration) { }
 
 
+        /// <summary>
+        /// Creates a new parser using the given <see cref="ExcelPackage"/> and <see cref="Configuration"/>.
+        /// </summary>
+        /// <param name="package">The <see cref="ExcelPackage"/> with the data.</param>
+        /// <param name="sheetName">The name of the sheet to import from.</param>
+        /// <param name="configuration">The configuration.</param>
         public ExcelParser(ExcelPackage package, string sheetName, Configuration configuration = null)
             : this(package.Workbook, sheetName, configuration) { }
 
 
         /// <summary>
-        /// Creates a new parser using the given <see cref="XLWorkbook"/> and <see cref="CsvConfiguration"/>.
+        /// Creates a new parser using the given <see cref="ExcelWorkbook"/> and <see cref="Configuration"/>.
         /// <remarks>
         /// Will attempt to read the data from the first worksheet in the workbook.
         /// </remarks>
         /// </summary>
-        /// <param name="workbook">The <see cref="XLWorkbook"/> with the data.</param>
+        /// <param name="workbook">The <see cref="ExcelWorkbook"/> with the data.</param>
         /// <param name="configuration">The configuration.</param>
         public ExcelParser(ExcelWorkbook workbook, Configuration configuration = null)
             : this(workbook.Worksheets.First(), configuration) { }
 
 
         /// <summary>
-        /// Creates a new parser using the given <see cref="XLWorkbook"/> and <see cref="CsvConfiguration"/>.
-        /// <remarks>
-        /// Will attempt to read the data from the first worksheet in the workbook.
-        /// </remarks>
+        /// Creates a new parser using the given <see cref="ExcelWorkbook"/> and <see cref="Configuration"/>.
         /// </summary>
-        /// <param name="workbook">The <see cref="XLWorkbook"/> with the data.</param>
+        /// <param name="workbook">The <see cref="ExcelWorkbook"/> with the data.</param>
         /// <param name="sheetName">The name of the sheet to import from.</param>
         /// <param name="configuration">The configuration.</param>
         public ExcelParser(ExcelWorkbook workbook, string sheetName, Configuration configuration = null)
@@ -80,18 +91,18 @@ namespace CsvHelper.Excel
 
 
         /// <summary>
-        /// Creates a new parser using the given <see cref="IXLWorksheet"/> and <see cref="CsvConfiguration"/>.
+        /// Creates a new parser using the given <see cref="ExcelWorksheet"/> and <see cref="Configuration"/>.
         /// </summary>
-        /// <param name="worksheet">The <see cref="IXLWorksheet"/> with the data.</param>
+        /// <param name="worksheet">The <see cref="ExcelWorksheet"/> with the data.</param>
         /// <param name="configuration">The configuration.</param>
         public ExcelParser(ExcelWorksheet worksheet, Configuration configuration = null)
             : this((ExcelRangeBase)worksheet.Cells, configuration) { }
 
 
         /// <summary>
-        /// Creates a new parser using the given <see cref="IXLRange"/> and <see cref="CsvConfiguration"/>.
+        /// Creates a new parser using the given <see cref="ExcelRange"/> and <see cref="Configuration"/>.
         /// </summary>
-        /// <param name="range">The <see cref="IXLRange"/> with the data.</param>
+        /// <param name="range">The <see cref="ExcelRange"/> with the data.</param>
         /// <param name="configuration">The configuration.</param>
         public ExcelParser(ExcelRange range, Configuration configuration = null)
             : this((ExcelRangeBase)range, configuration) { }
