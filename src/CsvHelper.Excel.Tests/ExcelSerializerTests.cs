@@ -14,9 +14,9 @@ namespace CsvHelper.Excel.Tests
         public abstract class Spec : IDisposable
         {
             protected readonly Person[] Values = {
-                new Person { Name = "Bill", Id = null, Age = 20, Empty = "" },
-                new Person { Name = "Ben", Id = null, Age = 20, Empty = null },
-                new Person { Name = "Weed", Id = null, Age = 30, Empty = "" }
+                new Person { Id = null, Name = "Bill", Age = 20, Empty = "" },
+                new Person { Id = null, Name = "Ben", Age = 20, Empty = null },
+                new Person { Id = null, Name = "Weed", Age = 30, Empty = "" }
             };
 
             private ExcelPackage package;
@@ -55,8 +55,8 @@ namespace CsvHelper.Excel.Tests
             public void TheExcelWorkbookHeadersAreCorrect()
             {
                 int column = StartColumn;
-                Assert.Equal(nameof(Person.Name), Worksheet.GetValue(StartRow, column++));
                 Assert.Equal(nameof(Person.Id), Worksheet.GetValue(StartRow, column++));
+                Assert.Equal(nameof(Person.Name), Worksheet.GetValue(StartRow, column++));
                 Assert.Equal(nameof(Person.Age), Worksheet.GetValue(StartRow, column++));
                 Assert.Equal(nameof(Person.Empty), Worksheet.GetValue(StartRow, column++));
             }
@@ -67,8 +67,8 @@ namespace CsvHelper.Excel.Tests
             {
                 for (int i = 0; i < Values.Length; i++) {
                     int column = StartColumn;
-                    Assert.Equal(Values[i].Name, Worksheet.GetValue(StartRow + i + 1, column++));
                     Assert.Equal(Values[i].Id, Worksheet.GetValue<int?>(StartRow + i + 1, column++));
+                    Assert.Equal(Values[i].Name, Worksheet.GetValue(StartRow + i + 1, column++));
                     Assert.Equal(Values[i].Age, Worksheet.GetValue<int>(StartRow + i + 1, column++));
                     Assert.Equal(Values[i].Empty ?? "", Worksheet.GetValue<string>(StartRow + i + 1, column++));
                 }

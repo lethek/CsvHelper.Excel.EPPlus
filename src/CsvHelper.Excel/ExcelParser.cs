@@ -186,14 +186,15 @@ namespace CsvHelper.Excel
             foreach (var cell in subRange) {
                 //If the current cell is further ahead than expected then OpenOfficeXml has skipped 1 or more empty cells: insert nulls for those
                 int actualIndex = (cell.Start.Row - subRange.Start.Row) * FieldCount + (cell.Start.Column - subRange.Start.Column);
-                int indexDelta = actualIndex - expectIndex++;
+                int indexDelta = actualIndex - expectIndex;
                 if (indexDelta > 0) {
                     values.AddRange(Enumerable.Repeat((string)null, indexDelta));
-                    expectIndex = actualIndex;
                 }
 
                 //Now we can add the value of the current cell
                 values.Add(cell.GetValue<string>());
+
+                expectIndex = actualIndex + 1;
             }
 
             if (!values.Any()) {

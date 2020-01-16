@@ -17,9 +17,9 @@ namespace CsvHelper.Excel.Tests
         public abstract class Spec : IDisposable
         {
             protected readonly Person[] Values = {
-                new Person { Name = "Bill", Id = null, Age = 40, Empty = "" },
-                new Person { Name = "Ben", Id = null, Age = 30, Empty = null },
-                new Person { Name = "Weed", Id = null, Age = 40, Empty = "" }
+                new Person { Id = null, Name = "Bill", Age = 40, Empty = "" },
+                new Person { Id = null, Name = "Ben", Age = 30, Empty = null },
+                new Person { Id = null, Name = "Weed", Age = 40, Empty = "" }
             };
 
             private ExcelPackage package;
@@ -33,15 +33,15 @@ namespace CsvHelper.Excel.Tests
                 var worksheet = package.GetOrAddWorksheet(WorksheetName);
                 var headerRow = worksheet.Row(StartRow);
                 int column = StartColumn;
-                worksheet.SetValue(headerRow.Row, column++, nameof(Person.Name));
                 worksheet.SetValue(headerRow.Row, column++, nameof(Person.Id));
+                worksheet.SetValue(headerRow.Row, column++, nameof(Person.Name));
                 worksheet.SetValue(headerRow.Row, column++, nameof(Person.Age));
                 worksheet.SetValue(headerRow.Row, column++, nameof(Person.Empty));
                 for (int i = 0; i < Values.Length; i++) {
                     column = StartColumn;
                     var row = worksheet.Row(StartRow + i + 1);
-                    worksheet.SetValue(row.Row, column++, Values[i].Name);
                     worksheet.SetValue(row.Row, column++, Values[i].Id);
+                    worksheet.SetValue(row.Row, column++, Values[i].Name);
                     worksheet.SetValue(row.Row, column++, Values[i].Age);
                     worksheet.SetValue(row.Row, column++, Values[i].Empty);
                 }
@@ -211,9 +211,8 @@ namespace CsvHelper.Excel.Tests
             {
                 for (int i = 0; i < Values.Length; i++) {
                     var row = Worksheet.Row(2 + i);
-                    Worksheet.Cells[row.Row, 3].FormulaR1C1 = $"=LEN({Worksheet.Cells[row.Row, 1].Address})*10";
+                    Worksheet.Cells[row.Row, 3].FormulaR1C1 = $"=LEN({Worksheet.Cells[row.Row, 2].Address})*10";
                 }
-
                 Package.SaveAs(new FileInfo(Path));
                 using (var parser = new ExcelParser(Path)) {
                     Run(parser);
