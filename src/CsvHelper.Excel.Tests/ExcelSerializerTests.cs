@@ -30,9 +30,9 @@ namespace CsvHelper.Excel.Tests
 
             protected virtual int StartColumn => 1;
 
-            protected ExcelPackage Package => package ?? (package = Helpers.GetOrCreatePackage(Path, WorksheetName));
+            protected ExcelPackage Package => package ??= Helpers.GetOrCreatePackage(Path, WorksheetName);
 
-            protected ExcelWorksheet Worksheet => worksheet ?? (worksheet = Package.GetOrAddWorksheet(WorksheetName));
+            protected ExcelWorksheet Worksheet => worksheet ??= Package.GetOrAddWorksheet(WorksheetName);
 
 
             protected void Run(ExcelSerializer serialiser)

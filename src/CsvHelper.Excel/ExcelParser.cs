@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -26,7 +27,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(string path, Configuration configuration = null)
+        public ExcelParser(string path, CsvConfiguration configuration = null)
             : this(new ExcelPackage(new FileInfo(path)), configuration)
         {
             _shouldDisposeWorkbook = true;
@@ -39,7 +40,7 @@ namespace CsvHelper.Excel
         /// <param name="path">The path to the workbook.</param>
         /// <param name="sheetName">The name of the sheet to import data from.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(string path, string sheetName, Configuration configuration = null)
+        public ExcelParser(string path, string sheetName, CsvConfiguration configuration = null)
             : this(new ExcelPackage(new FileInfo(path)), sheetName, configuration)
         {
             _shouldDisposeWorkbook = true;
@@ -54,7 +55,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="package">The <see cref="ExcelPackage"/> with the data.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(ExcelPackage package, Configuration configuration = null)
+        public ExcelParser(ExcelPackage package, CsvConfiguration configuration = null)
             : this(package.Workbook, configuration) { }
 
 
@@ -64,7 +65,7 @@ namespace CsvHelper.Excel
         /// <param name="package">The <see cref="ExcelPackage"/> with the data.</param>
         /// <param name="sheetName">The name of the sheet to import from.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(ExcelPackage package, string sheetName, Configuration configuration = null)
+        public ExcelParser(ExcelPackage package, string sheetName, CsvConfiguration configuration = null)
             : this(package.Workbook, sheetName, configuration) { }
 
 
@@ -76,7 +77,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="workbook">The <see cref="ExcelWorkbook"/> with the data.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(ExcelWorkbook workbook, Configuration configuration = null)
+        public ExcelParser(ExcelWorkbook workbook, CsvConfiguration configuration = null)
             : this(workbook.Worksheets.First(), configuration) { }
 
 
@@ -86,7 +87,7 @@ namespace CsvHelper.Excel
         /// <param name="workbook">The <see cref="ExcelWorkbook"/> with the data.</param>
         /// <param name="sheetName">The name of the sheet to import from.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(ExcelWorkbook workbook, string sheetName, Configuration configuration = null)
+        public ExcelParser(ExcelWorkbook workbook, string sheetName, CsvConfiguration configuration = null)
             : this(workbook.Worksheets[sheetName], configuration) { }
 
 
@@ -95,7 +96,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="worksheet">The <see cref="ExcelWorksheet"/> with the data.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(ExcelWorksheet worksheet, Configuration configuration = null)
+        public ExcelParser(ExcelWorksheet worksheet, CsvConfiguration configuration = null)
             : this((ExcelRangeBase)worksheet.Cells, configuration) { }
 
 
@@ -104,15 +105,15 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="range">The <see cref="ExcelRange"/> with the data.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(ExcelRange range, Configuration configuration = null)
+        public ExcelParser(ExcelRange range, CsvConfiguration configuration = null)
             : this((ExcelRangeBase)range, configuration) { }
 
 
-        private ExcelParser(ExcelRangeBase range, Configuration configuration)
+        private ExcelParser(ExcelRangeBase range, CsvConfiguration configuration)
         {
             Workbook = range.Worksheet.Workbook;
             this._range = range;
-            Configuration = configuration ?? new Configuration();
+            Configuration = configuration ?? new CsvConfiguration(CultureInfo.CurrentCulture);
             Context = new ReadingContext(TextReader.Null, Configuration, false);
             FieldCount = range.Worksheet.Dimension.Columns;
         }
@@ -126,7 +127,7 @@ namespace CsvHelper.Excel
         /// <summary>
         /// Gets the configuration.
         /// </summary>
-        public Configuration Configuration { get; }
+        public CsvConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the filed reader

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="path">The path to which to save the package.</param>
         /// <param name="configuration">The configuration</param>
-        public ExcelSerializer(string path, Configuration configuration = null)
+        public ExcelSerializer(string path, CsvConfiguration configuration = null)
             : this(new ExcelPackage(), configuration)
         {
             this.path = path;
@@ -66,7 +67,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="package">The package to write the data to.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelSerializer(ExcelPackage package, Configuration configuration = null)
+        public ExcelSerializer(ExcelPackage package, CsvConfiguration configuration = null)
             : this(package, "Export", configuration) { }
 
 
@@ -81,7 +82,7 @@ namespace CsvHelper.Excel
         /// <param name="package">The package to write the data to.</param>
         /// <param name="sheetName">The name of the sheet to write to.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelSerializer(ExcelPackage package, string sheetName, Configuration configuration = null)
+        public ExcelSerializer(ExcelPackage package, string sheetName, CsvConfiguration configuration = null)
             : this(package, package.GetOrAddWorksheet(sheetName), configuration) { }
 
 
@@ -95,7 +96,7 @@ namespace CsvHelper.Excel
         /// <param name="package">The package to write the data to.</param>
         /// <param name="worksheet">The worksheet to write the data to.</param>
         /// <param name="configuration">The configuration</param>
-        public ExcelSerializer(ExcelPackage package, ExcelWorksheet worksheet, Configuration configuration = null)
+        public ExcelSerializer(ExcelPackage package, ExcelWorksheet worksheet, CsvConfiguration configuration = null)
             : this(package, (ExcelRangeBase)worksheet.Cells, configuration) { }
 
 
@@ -105,15 +106,15 @@ namespace CsvHelper.Excel
         /// <param name="package">The package to write the data to.</param>
         /// <param name="range">The range to write the data to.</param>
         /// <param name="configuration">The configuration</param>
-        public ExcelSerializer(ExcelPackage package, ExcelRange range, Configuration configuration = null)
+        public ExcelSerializer(ExcelPackage package, ExcelRange range, CsvConfiguration configuration = null)
             : this(package, (ExcelRangeBase)range, configuration) { }
 
 
-        private ExcelSerializer(ExcelPackage package, ExcelRangeBase range, Configuration configuration)
+        private ExcelSerializer(ExcelPackage package, ExcelRangeBase range, CsvConfiguration configuration)
         {
             Package = package;
             this.range = range;
-            Configuration = configuration ?? new Configuration();
+            Configuration = configuration ?? new CsvConfiguration(CultureInfo.CurrentCulture);
             Configuration.ShouldQuote = (field, ctx) => false;
             Context = new WritingContext(TextWriter.Null, Configuration, false);
         }
@@ -127,7 +128,7 @@ namespace CsvHelper.Excel
         /// <summary>
         /// Gets the configuration.
         /// </summary>
-        public Configuration Configuration { get; }
+        public CsvConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the package to which the data is being written.
@@ -219,6 +220,13 @@ namespace CsvHelper.Excel
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+
+        public ValueTask DisposeAsync()
+        {
+            Dispose();
+            return default;
         }
 
 
