@@ -26,8 +26,7 @@ namespace CsvHelper.Excel
         /// <param name="path">The path.</param>
         /// <param name="configuration">The configuration.</param>
         public ExcelParser(string path, CsvConfiguration configuration = null)
-            : this(new ExcelPackage(new FileInfo(path)), configuration)
-        {
+            : this(new ExcelPackage(new FileInfo(path)), configuration) {
             _shouldDisposeWorkbook = true;
         }
 
@@ -39,8 +38,7 @@ namespace CsvHelper.Excel
         /// <param name="sheetName">The name of the sheet to import data from.</param>
         /// <param name="configuration">The configuration.</param>
         public ExcelParser(string path, string sheetName, CsvConfiguration configuration = null)
-            : this(new ExcelPackage(new FileInfo(path)), sheetName, configuration)
-        {
+            : this(new ExcelPackage(new FileInfo(path)), sheetName, configuration) {
             _shouldDisposeWorkbook = true;
         }
 
@@ -107,10 +105,9 @@ namespace CsvHelper.Excel
             : this((ExcelRangeBase)range, configuration) { }
 
 
-        private ExcelParser(ExcelRangeBase range, CsvConfiguration configuration)
-        {
+        private ExcelParser(ExcelRangeBase range, CsvConfiguration configuration) {
             Workbook = range.Worksheet.Workbook;
-            this._range = range;
+            _range = range;
             Configuration = configuration ?? new CsvConfiguration(CultureInfo.CurrentCulture);
             Context = new ReadingContext(TextReader.Null, Configuration, false);
             FieldCount = range.Worksheet.Dimension.Columns;
@@ -168,8 +165,7 @@ namespace CsvHelper.Excel
         /// A <see cref="T:String[]" /> of fields for the record read.
         /// </returns>
         /// <exception cref="ObjectDisposedException">Thrown if the parser has been disposed.</exception>
-        public virtual string[] Read()
-        {
+        public virtual string[] Read() {
             CheckDisposed();
 
             var fromRow = _range.Start.Row + Row + RowOffset - 1;
@@ -227,8 +223,7 @@ namespace CsvHelper.Excel
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
@@ -237,8 +232,7 @@ namespace CsvHelper.Excel
         /// <summary>
         /// Finalizes an instance of the <see cref="ExcelParser"/> class.
         /// </summary>
-        ~ExcelParser()
-        {
+        ~ExcelParser() {
             Dispose(false);
         }
 
@@ -247,11 +241,12 @@ namespace CsvHelper.Excel
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
-        {
+        protected virtual void Dispose(bool disposing) {
             if (_isDisposed) return;
             if (disposing) {
-                if (_shouldDisposeWorkbook) Workbook.Dispose();
+                if (_shouldDisposeWorkbook) {
+                    Workbook.Dispose();
+                }
             }
 
             _isDisposed = true;
@@ -262,8 +257,7 @@ namespace CsvHelper.Excel
         /// Checks if the instance has been disposed of.
         /// </summary>
         /// <exception cref="ObjectDisposedException" />
-        protected virtual void CheckDisposed()
-        {
+        protected virtual void CheckDisposed() {
             if (_isDisposed) {
                 throw new ObjectDisposedException(GetType().ToString());
             }
@@ -274,7 +268,7 @@ namespace CsvHelper.Excel
         private readonly ExcelRangeBase _range;
         private bool _isDisposed;
 
-        private static readonly ExcelCalculationOption DefaultExcelCalculationOption = new ExcelCalculationOption();
+        private static readonly ExcelCalculationOption DefaultExcelCalculationOption = new();
     }
 
 }

@@ -35,8 +35,7 @@ namespace CsvHelper.Excel.Tests
             protected ExcelWorksheet Worksheet => _worksheet ??= Package.GetOrAddWorksheet(WorksheetName);
 
 
-            protected void Run(ExcelSerializer serialiser)
-            {
+            protected void Run(ExcelSerializer serialiser) {
                 using var writer = new CsvWriter(serialiser);
                 writer.Configuration.AutoMap<Person>();
                 writer.WriteRecords(Values);
@@ -44,15 +43,13 @@ namespace CsvHelper.Excel.Tests
 
 
             [Fact]
-            public void TheFileIsAValidExcelFile()
-            {
+            public void TheFileIsAValidExcelFile() {
                 Assert.NotNull(Package);
             }
 
 
             [Fact]
-            public void TheExcelWorkbookHeadersAreCorrect()
-            {
+            public void TheExcelWorkbookHeadersAreCorrect() {
                 int column = StartColumn;
                 Assert.Equal(nameof(Person.Id), Worksheet.GetValue(StartRow, column++));
                 Assert.Equal(nameof(Person.Name), Worksheet.GetValue(StartRow, column++));
@@ -62,8 +59,7 @@ namespace CsvHelper.Excel.Tests
 
 
             [Fact]
-            public void TheExcelWorkbookValuesAreCorrect()
-            {
+            public void TheExcelWorkbookValuesAreCorrect() {
                 for (int i = 0; i < Values.Length; i++) {
                     int column = StartColumn;
                     Assert.Equal(Values[i].Id, Worksheet.GetValue<int?>(StartRow + i + 1, column++));
@@ -74,8 +70,7 @@ namespace CsvHelper.Excel.Tests
             }
 
 
-            protected virtual void Dispose(bool disposing)
-            {
+            protected virtual void Dispose(bool disposing) {
                 if (disposing) {
                     _package?.Save();
                     _package?.Dispose();
@@ -85,8 +80,7 @@ namespace CsvHelper.Excel.Tests
             }
 
 
-            public void Dispose()
-            {
+            public void Dispose() {
                 Dispose(true);
                 GC.SuppressFinalize(this);
             }
@@ -95,8 +89,7 @@ namespace CsvHelper.Excel.Tests
 
         public class SerialiseUsingPathSpec : Spec
         {
-            public SerialiseUsingPathSpec()
-            {
+            public SerialiseUsingPathSpec() {
                 using var serialiser = new ExcelSerializer(Path);
                 Run(serialiser);
             }
@@ -108,8 +101,7 @@ namespace CsvHelper.Excel.Tests
 
         public class SerialiseUsingPathWithOffsetsSpec : Spec
         {
-            public SerialiseUsingPathWithOffsetsSpec()
-            {
+            public SerialiseUsingPathWithOffsetsSpec() {
                 using var serialiser = new ExcelSerializer(Path) { ColumnOffset = StartColumn - 1, RowOffset = StartRow - 1 };
                 Run(serialiser);
             }
@@ -125,8 +117,7 @@ namespace CsvHelper.Excel.Tests
 
         public class SerialiseUsingPathAndSheetnameSpec : Spec
         {
-            public SerialiseUsingPathAndSheetnameSpec()
-            {
+            public SerialiseUsingPathAndSheetnameSpec() {
                 using var serialiser = new ExcelSerializer(Path, WorksheetName);
                 Run(serialiser);
             }
@@ -140,8 +131,7 @@ namespace CsvHelper.Excel.Tests
 
         public class SerialiseUsingPackageSpec : Spec
         {
-            public SerialiseUsingPackageSpec()
-            {
+            public SerialiseUsingPackageSpec() {
                 using var serialiser = new ExcelSerializer(Package);
                 Run(serialiser);
             }
@@ -153,8 +143,7 @@ namespace CsvHelper.Excel.Tests
 
         public class SerialiseUsingPackageAndSheetnameSpec : Spec
         {
-            public SerialiseUsingPackageAndSheetnameSpec()
-            {
+            public SerialiseUsingPackageAndSheetnameSpec() {
                 using var serialiser = new ExcelSerializer(Package, WorksheetName);
                 Run(serialiser);
             }
@@ -168,8 +157,7 @@ namespace CsvHelper.Excel.Tests
 
         public class SerialiseUsingWorksheetSpec : Spec
         {
-            public SerialiseUsingWorksheetSpec()
-            {
+            public SerialiseUsingWorksheetSpec() {
                 using var serialiser = new ExcelSerializer(Package, Worksheet);
                 Run(serialiser);
             }
@@ -183,8 +171,7 @@ namespace CsvHelper.Excel.Tests
 
         public class SerialiseUsingRangeSpec : Spec
         {
-            public SerialiseUsingRangeSpec()
-            {
+            public SerialiseUsingRangeSpec() {
                 var range = Worksheet.Cells[StartRow, StartColumn, StartRow + Values.Length, StartColumn + 1];
                 using var serialiser = new ExcelSerializer(Package, range);
                 Run(serialiser);

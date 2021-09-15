@@ -5,14 +5,13 @@
         public int? Id { get; set; }
 
         public string Name { get; set; }
-        
+
         public int Age { get; set; }
 
         public string Empty { get; set; }
 
 
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             int hash = 17;
             hash = hash * 23 + Id?.GetHashCode() ?? 0;
             hash = hash * 23 + Name?.GetHashCode() ?? 0;
@@ -21,8 +20,7 @@
             return hash;
         }
 
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             if (!(obj is Person)) return false;
             var other = (Person)obj;
             if (Id != other.Id) return false;

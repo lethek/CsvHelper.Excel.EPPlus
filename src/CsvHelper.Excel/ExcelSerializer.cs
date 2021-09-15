@@ -33,8 +33,7 @@ namespace CsvHelper.Excel
         /// <param name="path">The path to which to save the package.</param>
         /// <param name="configuration">The configuration</param>
         public ExcelSerializer(string path, CsvConfiguration configuration = null)
-            : this(new ExcelPackage(), configuration)
-        {
+            : this(new ExcelPackage(), configuration) {
             this.path = path;
             disposePackage = true;
         }
@@ -49,8 +48,7 @@ namespace CsvHelper.Excel
         /// <param name="path">The path to which to save the package.</param>
         /// <param name="sheetName">The name of the sheet to which to save</param>
         public ExcelSerializer(string path, string sheetName)
-            : this(new ExcelPackage(), sheetName)
-        {
+            : this(new ExcelPackage(), sheetName) {
             this.path = path;
             disposePackage = true;
         }
@@ -109,8 +107,7 @@ namespace CsvHelper.Excel
             : this(package, (ExcelRangeBase)range, configuration) { }
 
 
-        private ExcelSerializer(ExcelPackage package, ExcelRangeBase range, CsvConfiguration configuration)
-        {
+        private ExcelSerializer(ExcelPackage package, ExcelRangeBase range, CsvConfiguration configuration) {
             Package = package;
             this.range = range;
             Configuration = configuration ?? new CsvConfiguration(CultureInfo.CurrentCulture);
@@ -155,8 +152,7 @@ namespace CsvHelper.Excel
         /// <exception cref="ObjectDisposedException">
         /// Thrown is the serializer has been disposed.
         /// </exception>
-        public virtual void Write(string[] record)
-        {
+        public virtual void Write(string[] record) {
             CheckDisposed();
 
             for (var i = 0; i < record.Length; i++) {
@@ -174,8 +170,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="record">The record to write.</param>
         /// <returns></returns>
-        public Task WriteAsync(string[] record)
-        {
+        public Task WriteAsync(string[] record) {
             Write(record);
             return Task.CompletedTask;
         }
@@ -190,8 +185,7 @@ namespace CsvHelper.Excel
         /// <summary>
         /// Implementation forced by CsvHelper : <see cref="IParser"/>
         /// </summary>
-        public Task WriteLineAsync()
-        {
+        public Task WriteLineAsync() {
             WriteLine();
             return Task.CompletedTask;
         }
@@ -206,24 +200,21 @@ namespace CsvHelper.Excel
         /// <param name="text">The text to replace.</param>
         /// <returns>The input</returns>
         protected static string ReplaceHexadecimalSymbols(string text)
-        {
-            if (String.IsNullOrEmpty(text)) return text;
-            return Regex.Replace(text, "[\x00-\x08\x0B\x0C\x0E-\x1F]", String.Empty, RegexOptions.Compiled);
-        }
+            => !String.IsNullOrEmpty(text)
+                ? Regex.Replace(text, "[\x00-\x08\x0B\x0C\x0E-\x1F]", String.Empty, RegexOptions.Compiled)
+                : text;
 
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
+        public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
 
-        public ValueTask DisposeAsync()
-        {
+        public ValueTask DisposeAsync() {
             Dispose();
             return default;
         }
@@ -232,8 +223,7 @@ namespace CsvHelper.Excel
         /// <summary>
         /// Finalizes an instance of the <see cref="ExcelSerializer"/> class.
         /// </summary>
-        ~ExcelSerializer()
-        {
+        ~ExcelSerializer() {
             Dispose(false);
         }
 
@@ -242,8 +232,7 @@ namespace CsvHelper.Excel
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
-        {
+        protected virtual void Dispose(bool disposing) {
             if (disposed) return;
             if (disposing) {
                 if (disposePackage) {
@@ -262,8 +251,7 @@ namespace CsvHelper.Excel
         /// <exception cref="ObjectDisposedException">
         /// Thrown is the serializer has been disposed.
         /// </exception>
-        protected virtual void CheckDisposed()
-        {
+        protected virtual void CheckDisposed() {
             if (disposed) {
                 throw new ObjectDisposedException(GetType().ToString());
             }

@@ -27,8 +27,7 @@ namespace CsvHelper.Excel.Tests
             private Person[] _results;
 
 
-            protected Spec()
-            {
+            protected Spec() {
                 var package = Helpers.GetOrCreatePackage(Path, WorksheetName);
                 var worksheet = package.GetOrAddWorksheet(WorksheetName);
                 var headerRow = worksheet.Row(StartRow);
@@ -63,8 +62,7 @@ namespace CsvHelper.Excel.Tests
             protected ExcelWorksheet Worksheet => _worksheet ??= Package.GetOrAddWorksheet(WorksheetName);
 
 
-            protected void Run(ExcelParser parser)
-            {
+            protected void Run(ExcelParser parser) {
                 using var reader = new CsvReader(parser);
                 reader.Configuration.AutoMap<Person>();
                 _results = reader.GetRecords<Person>().ToArray();
@@ -72,21 +70,18 @@ namespace CsvHelper.Excel.Tests
 
 
             [Fact]
-            public void TheResultsAreNotNull()
-            {
+            public void TheResultsAreNotNull() {
                 Assert.NotNull(_results);
             }
 
 
             [Fact]
-            public void TheResultsAreCorrect()
-            {
+            public void TheResultsAreCorrect() {
                 Assert.Equal(Values, _results, EqualityComparer<Person>.Default);
             }
 
 
-            protected virtual void Dispose(bool disposing)
-            {
+            protected virtual void Dispose(bool disposing) {
                 if (disposing) {
                     _package?.Dispose();
                     _worksheet?.Dispose();
@@ -95,8 +90,7 @@ namespace CsvHelper.Excel.Tests
             }
 
 
-            public void Dispose()
-            {
+            public void Dispose() {
                 Dispose(true);
                 GC.SuppressFinalize(this);
             }
@@ -105,8 +99,7 @@ namespace CsvHelper.Excel.Tests
 
         public class ParseUsingPathSpec : Spec
         {
-            public ParseUsingPathSpec()
-            {
+            public ParseUsingPathSpec() {
                 using var parser = new ExcelParser(Path);
                 Run(parser);
             }
@@ -118,8 +111,7 @@ namespace CsvHelper.Excel.Tests
 
         public class ParseUsingPathWithOffsetsSpec : Spec
         {
-            public ParseUsingPathWithOffsetsSpec()
-            {
+            public ParseUsingPathWithOffsetsSpec() {
                 using var parser = new ExcelParser(Path) { ColumnOffset = StartColumn - 1, RowOffset = StartRow - 1 };
                 Run(parser);
             }
@@ -135,8 +127,7 @@ namespace CsvHelper.Excel.Tests
 
         public class ParseUsingPathAndSheetNameSpec : Spec
         {
-            public ParseUsingPathAndSheetNameSpec()
-            {
+            public ParseUsingPathAndSheetNameSpec() {
                 using var parser = new ExcelParser(Path, WorksheetName);
                 Run(parser);
             }
@@ -150,8 +141,7 @@ namespace CsvHelper.Excel.Tests
 
         public class ParseUsingPackageSpec : Spec
         {
-            public ParseUsingPackageSpec()
-            {
+            public ParseUsingPackageSpec() {
                 using var parser = new ExcelParser(Package);
                 Run(parser);
             }
@@ -163,8 +153,7 @@ namespace CsvHelper.Excel.Tests
 
         public class ParseUsingPackageAndSheetNameSpec : Spec
         {
-            public ParseUsingPackageAndSheetNameSpec()
-            {
+            public ParseUsingPackageAndSheetNameSpec() {
                 using var parser = new ExcelParser(Package, WorksheetName);
                 Run(parser);
             }
@@ -178,8 +167,7 @@ namespace CsvHelper.Excel.Tests
 
         public class ParseUsingWorksheetSpec : Spec
         {
-            public ParseUsingWorksheetSpec()
-            {
+            public ParseUsingWorksheetSpec() {
                 using var parser = new ExcelParser(Worksheet);
                 Run(parser);
             }
@@ -191,8 +179,7 @@ namespace CsvHelper.Excel.Tests
 
         public class ParseUsingRangeSpec : Spec
         {
-            public ParseUsingRangeSpec()
-            {
+            public ParseUsingRangeSpec() {
                 var range = Worksheet.Cells[StartRow, StartColumn, StartRow + Values.Length, StartColumn + 1];
                 using var parser = new ExcelParser(range);
                 Run(parser);
@@ -209,8 +196,7 @@ namespace CsvHelper.Excel.Tests
 
         public class ParseWithFormulaSpec : Spec
         {
-            public ParseWithFormulaSpec()
-            {
+            public ParseWithFormulaSpec() {
                 for (int i = 0; i < Values.Length; i++) {
                     var row = Worksheet.Row(2 + i);
                     Worksheet.Cells[row.Row, 3].FormulaR1C1 = $"=LEN({Worksheet.Cells[row.Row, 2].Address})*10";
