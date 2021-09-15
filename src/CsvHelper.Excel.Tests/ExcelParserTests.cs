@@ -17,14 +17,14 @@ namespace CsvHelper.Excel.Tests
         public abstract class Spec : IDisposable
         {
             protected readonly Person[] Values = {
-                new Person { Id = null, Name = "Bill", Age = 40, Empty = "" },
-                new Person { Id = null, Name = "Ben", Age = 30, Empty = null },
-                new Person { Id = null, Name = "Weed", Age = 40, Empty = "" }
+                new() { Id = null, Name = "Bill", Age = 40, Empty = "" },
+                new() { Id = null, Name = "Ben", Age = 30, Empty = null },
+                new() { Id = null, Name = "Weed", Age = 40, Empty = "" }
             };
 
-            private ExcelPackage package;
-            private ExcelWorksheet worksheet;
-            protected Person[] Results;
+            private ExcelPackage _package;
+            private ExcelWorksheet _worksheet;
+            private Person[] _results;
 
 
             protected Spec()
@@ -58,38 +58,47 @@ namespace CsvHelper.Excel.Tests
 
             protected virtual int StartColumn => 1;
 
-            protected ExcelPackage Package => package ?? (package = Helpers.GetOrCreatePackage(Path, WorksheetName));
+            protected ExcelPackage Package => _package ??= Helpers.GetOrCreatePackage(Path, WorksheetName);
 
-            protected ExcelWorksheet Worksheet => worksheet ?? (worksheet = Package.GetOrAddWorksheet(WorksheetName));
+            protected ExcelWorksheet Worksheet => _worksheet ??= Package.GetOrAddWorksheet(WorksheetName);
 
 
             protected void Run(ExcelParser parser)
             {
-                using (var reader = new CsvReader(parser)) {
-                    reader.Configuration.AutoMap<Person>();
-                    Results = reader.GetRecords<Person>().ToArray();
-                }
+                using var reader = new CsvReader(parser);
+                reader.Configuration.AutoMap<Person>();
+                _results = reader.GetRecords<Person>().ToArray();
             }
 
 
             [Fact]
             public void TheResultsAreNotNull()
             {
-                Assert.NotNull(Results);
+                Assert.NotNull(_results);
             }
 
 
             [Fact]
             public void TheResultsAreCorrect()
             {
-                Assert.Equal(Values, Results, EqualityComparer<Person>.Default);
+                Assert.Equal(Values, _results, EqualityComparer<Person>.Default);
+            }
+
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (disposing) {
+                    _package?.Dispose();
+                    _worksheet?.Dispose();
+                    File.Delete(Path);
+                }
             }
 
 
             public void Dispose()
             {
-                Package?.Dispose();
-                File.Delete(Path);
+                Dispose(true);
+                GC.SuppressFinalize(this);
             }
         }
 
@@ -98,9 +107,8 @@ namespace CsvHelper.Excel.Tests
         {
             public ParseUsingPathSpec()
             {
-                using (var parser = new ExcelParser(Path)) {
-                    Run(parser);
-                }
+                using var parser = new ExcelParser(Path);
+                Run(parser);
             }
 
 
@@ -112,9 +120,8 @@ namespace CsvHelper.Excel.Tests
         {
             public ParseUsingPathWithOffsetsSpec()
             {
-                using (var parser = new ExcelParser(Path) { ColumnOffset = StartColumn - 1, RowOffset = StartRow - 1 }) {
-                    Run(parser);
-                }
+                using var parser = new ExcelParser(Path) { ColumnOffset = StartColumn - 1, RowOffset = StartRow - 1 };
+                Run(parser);
             }
 
 
@@ -130,9 +137,8 @@ namespace CsvHelper.Excel.Tests
         {
             public ParseUsingPathAndSheetNameSpec()
             {
-                using (var parser = new ExcelParser(Path, WorksheetName)) {
-                    Run(parser);
-                }
+                using var parser = new ExcelParser(Path, WorksheetName);
+                Run(parser);
             }
 
 
@@ -146,9 +152,8 @@ namespace CsvHelper.Excel.Tests
         {
             public ParseUsingPackageSpec()
             {
-                using (var parser = new ExcelParser(Package)) {
-                    Run(parser);
-                }
+                using var parser = new ExcelParser(Package);
+                Run(parser);
             }
 
 
@@ -160,9 +165,8 @@ namespace CsvHelper.Excel.Tests
         {
             public ParseUsingPackageAndSheetNameSpec()
             {
-                using (var parser = new ExcelParser(Package, WorksheetName)) {
-                    Run(parser);
-                }
+                using var parser = new ExcelParser(Package, WorksheetName);
+                Run(parser);
             }
 
 
@@ -176,9 +180,8 @@ namespace CsvHelper.Excel.Tests
         {
             public ParseUsingWorksheetSpec()
             {
-                using (var parser = new ExcelParser(Worksheet)) {
-                    Run(parser);
-                }
+                using var parser = new ExcelParser(Worksheet);
+                Run(parser);
             }
 
 
@@ -191,9 +194,8 @@ namespace CsvHelper.Excel.Tests
             public ParseUsingRangeSpec()
             {
                 var range = Worksheet.Cells[StartRow, StartColumn, StartRow + Values.Length, StartColumn + 1];
-                using (var parser = new ExcelParser(range)) {
-                    Run(parser);
-                }
+                using var parser = new ExcelParser(range);
+                Run(parser);
             }
 
 
@@ -214,9 +216,8 @@ namespace CsvHelper.Excel.Tests
                     Worksheet.Cells[row.Row, 3].FormulaR1C1 = $"=LEN({Worksheet.Cells[row.Row, 2].Address})*10";
                 }
                 Package.SaveAs(new FileInfo(Path));
-                using (var parser = new ExcelParser(Path)) {
-                    Run(parser);
-                }
+                using var parser = new ExcelParser(Path);
+                Run(parser);
             }
 
 

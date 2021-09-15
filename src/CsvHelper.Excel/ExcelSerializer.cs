@@ -4,14 +4,13 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using CsvHelper.Configuration;
+
 using OfficeOpenXml;
 
 
 namespace CsvHelper.Excel
 {
-
-    using Configuration;
-
 
     /// <summary>
     /// Defines methods used to serialize data into an Excel (2007+) file.

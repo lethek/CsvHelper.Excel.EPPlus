@@ -14,13 +14,13 @@ namespace CsvHelper.Excel.Tests
         public abstract class Spec : IDisposable
         {
             protected readonly Person[] Values = {
-                new Person { Id = null, Name = "Bill", Age = 20, Empty = "" },
-                new Person { Id = null, Name = "Ben", Age = 20, Empty = null },
-                new Person { Id = null, Name = "Weed", Age = 30, Empty = "" }
+                new() { Id = null, Name = "Bill", Age = 20, Empty = "" },
+                new() { Id = null, Name = "Ben", Age = 20, Empty = null },
+                new() { Id = null, Name = "Weed", Age = 30, Empty = "" }
             };
 
-            private ExcelPackage package;
-            private ExcelWorksheet worksheet;
+            private ExcelPackage _package;
+            private ExcelWorksheet _worksheet;
 
             protected abstract string Path { get; }
 
@@ -30,17 +30,16 @@ namespace CsvHelper.Excel.Tests
 
             protected virtual int StartColumn => 1;
 
-            protected ExcelPackage Package => package ??= Helpers.GetOrCreatePackage(Path, WorksheetName);
+            protected ExcelPackage Package => _package ??= Helpers.GetOrCreatePackage(Path, WorksheetName);
 
-            protected ExcelWorksheet Worksheet => worksheet ??= Package.GetOrAddWorksheet(WorksheetName);
+            protected ExcelWorksheet Worksheet => _worksheet ??= Package.GetOrAddWorksheet(WorksheetName);
 
 
             protected void Run(ExcelSerializer serialiser)
             {
-                using (var writer = new CsvWriter(serialiser)) {
-                    writer.Configuration.AutoMap<Person>();
-                    writer.WriteRecords(Values);
-                }
+                using var writer = new CsvWriter(serialiser);
+                writer.Configuration.AutoMap<Person>();
+                writer.WriteRecords(Values);
             }
 
 
@@ -75,11 +74,21 @@ namespace CsvHelper.Excel.Tests
             }
 
 
+            protected virtual void Dispose(bool disposing)
+            {
+                if (disposing) {
+                    _package?.Save();
+                    _package?.Dispose();
+                    _worksheet?.Dispose();
+                    File.Delete(Path);
+                }
+            }
+
+
             public void Dispose()
             {
-                Package.Save();
-                Package.Dispose();
-                File.Delete(Path);
+                Dispose(true);
+                GC.SuppressFinalize(this);
             }
         }
 
@@ -88,9 +97,8 @@ namespace CsvHelper.Excel.Tests
         {
             public SerialiseUsingPathSpec()
             {
-                using (var serialiser = new ExcelSerializer(Path)) {
-                    Run(serialiser);
-                }
+                using var serialiser = new ExcelSerializer(Path);
+                Run(serialiser);
             }
 
 
@@ -102,9 +110,8 @@ namespace CsvHelper.Excel.Tests
         {
             public SerialiseUsingPathWithOffsetsSpec()
             {
-                using (var serialiser = new ExcelSerializer(Path) { ColumnOffset = StartColumn - 1, RowOffset = StartRow - 1 }) {
-                    Run(serialiser);
-                }
+                using var serialiser = new ExcelSerializer(Path) { ColumnOffset = StartColumn - 1, RowOffset = StartRow - 1 };
+                Run(serialiser);
             }
 
 
@@ -120,9 +127,8 @@ namespace CsvHelper.Excel.Tests
         {
             public SerialiseUsingPathAndSheetnameSpec()
             {
-                using (var serialiser = new ExcelSerializer(Path, WorksheetName)) {
-                    Run(serialiser);
-                }
+                using var serialiser = new ExcelSerializer(Path, WorksheetName);
+                Run(serialiser);
             }
 
 
@@ -136,9 +142,8 @@ namespace CsvHelper.Excel.Tests
         {
             public SerialiseUsingPackageSpec()
             {
-                using (var serialiser = new ExcelSerializer(Package)) {
-                    Run(serialiser);
-                }
+                using var serialiser = new ExcelSerializer(Package);
+                Run(serialiser);
             }
 
 
@@ -150,9 +155,8 @@ namespace CsvHelper.Excel.Tests
         {
             public SerialiseUsingPackageAndSheetnameSpec()
             {
-                using (var serialiser = new ExcelSerializer(Package, WorksheetName)) {
-                    Run(serialiser);
-                }
+                using var serialiser = new ExcelSerializer(Package, WorksheetName);
+                Run(serialiser);
             }
 
 
@@ -166,9 +170,8 @@ namespace CsvHelper.Excel.Tests
         {
             public SerialiseUsingWorksheetSpec()
             {
-                using (var serialiser = new ExcelSerializer(Package, Worksheet)) {
-                    Run(serialiser);
-                }
+                using var serialiser = new ExcelSerializer(Package, Worksheet);
+                Run(serialiser);
             }
 
 
@@ -183,9 +186,8 @@ namespace CsvHelper.Excel.Tests
             public SerialiseUsingRangeSpec()
             {
                 var range = Worksheet.Cells[StartRow, StartColumn, StartRow + Values.Length, StartColumn + 1];
-                using (var serialiser = new ExcelSerializer(Package, range)) {
-                    Run(serialiser);
-                }
+                using var serialiser = new ExcelSerializer(Package, range);
+                Run(serialiser);
             }
 
             protected override int StartRow => 4;
