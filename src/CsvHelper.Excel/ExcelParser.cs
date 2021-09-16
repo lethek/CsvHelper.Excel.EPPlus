@@ -242,14 +242,14 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing) {
-            if (_isDisposed) return;
-            if (disposing) {
-                if (_shouldDisposeWorkbook) {
-                    Workbook.Dispose();
+            if (!_disposed) {
+                if (disposing) {
+                    if (_shouldDisposeWorkbook) {
+                        Workbook.Dispose();
+                    }
                 }
+                _disposed = true;
             }
-
-            _isDisposed = true;
         }
 
 
@@ -258,7 +258,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <exception cref="ObjectDisposedException" />
         protected virtual void CheckDisposed() {
-            if (_isDisposed) {
+            if (_disposed) {
                 throw new ObjectDisposedException(GetType().ToString());
             }
         }
@@ -266,7 +266,7 @@ namespace CsvHelper.Excel
 
         private readonly bool _shouldDisposeWorkbook;
         private readonly ExcelRangeBase _range;
-        private bool _isDisposed;
+        private bool _disposed;
 
         private static readonly ExcelCalculationOption DefaultExcelCalculationOption = new();
     }

@@ -11,18 +11,11 @@ using OfficeOpenXml;
 
 namespace CsvHelper.Excel
 {
-
     /// <summary>
     /// Defines methods used to serialize data into an Excel (2007+) file.
     /// </summary>
     public class ExcelSerializer : ISerializer
     {
-        private readonly string path;
-        private readonly bool disposePackage;
-        private readonly ExcelRangeBase range;
-        private bool disposed;
-        private int currentRow = 1;
-
 
         /// <summary>
         /// Creates a new serializer using a new <see cref="ExcelPackage"/> saved to the given <paramref name="path"/>.
@@ -34,8 +27,8 @@ namespace CsvHelper.Excel
         /// <param name="configuration">The configuration</param>
         public ExcelSerializer(string path, CsvConfiguration configuration = null)
             : this(new ExcelPackage(), configuration) {
-            this.path = path;
-            disposePackage = true;
+            _path = path;
+            _disposePackage = true;
         }
 
 
@@ -49,8 +42,8 @@ namespace CsvHelper.Excel
         /// <param name="sheetName">The name of the sheet to which to save</param>
         public ExcelSerializer(string path, string sheetName)
             : this(new ExcelPackage(), sheetName) {
-            this.path = path;
-            disposePackage = true;
+            _path = path;
+            _disposePackage = true;
         }
 
 
@@ -109,7 +102,7 @@ namespace CsvHelper.Excel
 
         private ExcelSerializer(ExcelPackage package, ExcelRangeBase range, CsvConfiguration configuration) {
             Package = package;
-            this.range = range;
+            _range = range;
             Configuration = configuration ?? new CsvConfiguration(CultureInfo.CurrentCulture);
             Configuration.ShouldQuote = (field, ctx) => false;
             Context = new WritingContext(TextWriter.Null, Configuration, false);
@@ -156,12 +149,12 @@ namespace CsvHelper.Excel
             CheckDisposed();
 
             for (var i = 0; i < record.Length; i++) {
-                var row = range.Start.Row + currentRow + RowOffset - 1;
-                var column = range.Start.Column + ColumnOffset + i;
-                range.Worksheet.SetValue(row, column, ReplaceHexadecimalSymbols(record[i]));
+                var row = _range.Start.Row + _currentRow + RowOffset - 1;
+                var column = _range.Start.Column + ColumnOffset + i;
+                _range.Worksheet.SetValue(row, column, ReplaceHexadecimalSymbols(record[i]));
             }
 
-            currentRow++;
+            _currentRow++;
         }
 
 
@@ -233,15 +226,15 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing) {
-            if (disposed) return;
-            if (disposing) {
-                if (disposePackage) {
-                    Package?.SaveAs(new FileInfo(path));
-                    Package?.Dispose();
+            if (!_disposed) {
+                if (disposing) {
+                    if (_disposePackage) {
+                        Package?.SaveAs(new FileInfo(_path));
+                        Package?.Dispose();
+                    }
                 }
+                _disposed = true;
             }
-
-            disposed = true;
         }
 
 
@@ -252,10 +245,16 @@ namespace CsvHelper.Excel
         /// Thrown is the serializer has been disposed.
         /// </exception>
         protected virtual void CheckDisposed() {
-            if (disposed) {
+            if (_disposed) {
                 throw new ObjectDisposedException(GetType().ToString());
             }
         }
-    }
 
+
+        private readonly string _path;
+        private readonly bool _disposePackage;
+        private readonly ExcelRangeBase _range;
+        private int _currentRow = 1;
+        private bool _disposed;
+    }
 }

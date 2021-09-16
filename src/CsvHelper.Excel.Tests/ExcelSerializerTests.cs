@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 
+using FluentAssertions;
+
 using OfficeOpenXml;
 
 using Xunit;
@@ -8,31 +10,49 @@ using Xunit;
 
 namespace CsvHelper.Excel.Tests
 {
-
     public class ExcelSerializerTests
     {
         public abstract class Spec : IDisposable
         {
             protected readonly Person[] Values = {
                 new() { Id = null, Name = "Bill", Age = 20, Empty = "" },
-                new() { Id = null, Name = "Ben", Age = 20, Empty = null },
+                new() { Id = null, Name = "Ben", Age = 20, Empty = "" },
                 new() { Id = null, Name = "Weed", Age = 30, Empty = "" }
             };
+
+            protected string Path { get; }
+            protected string Dir { get; }
+            protected string WorksheetName { get; }
+            protected int StartRow { get; }
+            protected int StartColumn { get; }
+
+            protected ExcelPackage Package => _package ??= CreatePackage();
+            protected ExcelWorksheet Worksheet => _worksheet ??= CreateWorksheet();
 
             private ExcelPackage _package;
             private ExcelWorksheet _worksheet;
 
-            protected abstract string Path { get; }
 
-            protected virtual string WorksheetName => "Export";
+            protected Spec(string path, string worksheetName = "Export", int startRow = 1, int startColumn = 1) {
+                Path = System.IO.Path.GetFullPath(System.IO.Path.Combine("data", Guid.NewGuid().ToString(), $"{path}.xlsx"));
 
-            protected virtual int StartRow => 1;
+                Dir = System.IO.Path.GetDirectoryName(Path);
+                if (!Directory.Exists(Dir)) {
+                    Directory.CreateDirectory(Dir);
+                }
 
-            protected virtual int StartColumn => 1;
+                WorksheetName = worksheetName;
+                StartRow = startRow;
+                StartColumn = startColumn;
+            }
 
-            protected ExcelPackage Package => _package ??= Helpers.GetOrCreatePackage(Path, WorksheetName);
 
-            protected ExcelWorksheet Worksheet => _worksheet ??= Package.GetOrAddWorksheet(WorksheetName);
+            protected virtual ExcelPackage CreatePackage()
+                => Helpers.GetOrCreatePackage(Path, WorksheetName);
+
+
+            protected virtual ExcelWorksheet CreateWorksheet()
+                => Package.GetOrAddWorksheet(WorksheetName);
 
 
             protected void Run(ExcelSerializer serialiser) {
@@ -43,18 +63,17 @@ namespace CsvHelper.Excel.Tests
 
 
             [Fact]
-            public void TheFileIsAValidExcelFile() {
-                Assert.NotNull(Package);
-            }
+            public void TheFileIsAValidExcelFile()
+                => Package.Should().NotBeNull();
 
 
             [Fact]
             public void TheExcelWorkbookHeadersAreCorrect() {
                 int column = StartColumn;
-                Assert.Equal(nameof(Person.Id), Worksheet.GetValue(StartRow, column++));
-                Assert.Equal(nameof(Person.Name), Worksheet.GetValue(StartRow, column++));
-                Assert.Equal(nameof(Person.Age), Worksheet.GetValue(StartRow, column++));
-                Assert.Equal(nameof(Person.Empty), Worksheet.GetValue(StartRow, column++));
+                nameof(Person.Id).Should().Be(Worksheet.GetValue(StartRow, column++).ToString());
+                nameof(Person.Name).Should().Be(Worksheet.GetValue(StartRow, column++).ToString());
+                nameof(Person.Age).Should().Be(Worksheet.GetValue(StartRow, column++).ToString());
+                nameof(Person.Empty).Should().Be(Worksheet.GetValue(StartRow, column++).ToString());
             }
 
 
@@ -62,10 +81,10 @@ namespace CsvHelper.Excel.Tests
             public void TheExcelWorkbookValuesAreCorrect() {
                 for (int i = 0; i < Values.Length; i++) {
                     int column = StartColumn;
-                    Assert.Equal(Values[i].Id, Worksheet.GetValue<int?>(StartRow + i + 1, column++));
-                    Assert.Equal(Values[i].Name, Worksheet.GetValue(StartRow + i + 1, column++));
-                    Assert.Equal(Values[i].Age, Worksheet.GetValue<int>(StartRow + i + 1, column++));
-                    Assert.Equal(Values[i].Empty ?? "", Worksheet.GetValue<string>(StartRow + i + 1, column++));
+                    Values[i].Id.Should().Be(Worksheet.GetValue<int?>(StartRow + i + 1, column++).As<int?>());
+                    Values[i].Name.Should().Be(Worksheet.GetValue(StartRow + i + 1, column++).As<string>());
+                    Values[i].Age.Should().Be(Worksheet.GetValue<int>(StartRow + i + 1, column++).As<int>());
+                    Values[i].Empty.Should().Be(Worksheet.GetValue<string>(StartRow + i + 1, column++).As<string>());
                 }
             }
 
@@ -75,7 +94,7 @@ namespace CsvHelper.Excel.Tests
                     _package?.Save();
                     _package?.Dispose();
                     _worksheet?.Dispose();
-                    File.Delete(Path);
+                    Helpers.Delete(Path);
                 }
             }
 
@@ -89,101 +108,68 @@ namespace CsvHelper.Excel.Tests
 
         public class SerialiseUsingPathSpec : Spec
         {
-            public SerialiseUsingPathSpec() {
+            public SerialiseUsingPathSpec() : base("serialise_by_path.xlsx") {
                 using var serialiser = new ExcelSerializer(Path);
                 Run(serialiser);
             }
-
-
-            protected sealed override string Path => "serialise_by_path.xlsx";
         }
 
 
         public class SerialiseUsingPathWithOffsetsSpec : Spec
         {
-            public SerialiseUsingPathWithOffsetsSpec() {
-                using var serialiser = new ExcelSerializer(Path) { ColumnOffset = StartColumn - 1, RowOffset = StartRow - 1 };
+            public SerialiseUsingPathWithOffsetsSpec() : base("serialise_by_path_with_offsets.xlsx", "Export", 5, 5) {
+                using var serialiser = new ExcelSerializer(Path) {
+                    ColumnOffset = StartColumn - 1,
+                    RowOffset = StartRow - 1
+                };
                 Run(serialiser);
             }
-
-
-            protected override int StartColumn => 5;
-
-            protected override int StartRow => 5;
-
-            protected sealed override string Path => "serialise_by_path_with_offsets.xlsx";
         }
 
 
         public class SerialiseUsingPathAndSheetnameSpec : Spec
         {
-            public SerialiseUsingPathAndSheetnameSpec() {
+            public SerialiseUsingPathAndSheetnameSpec() : base("serialise_by_path_and_sheetname.xlsx", "a_different_sheet_name") {
                 using var serialiser = new ExcelSerializer(Path, WorksheetName);
                 Run(serialiser);
             }
-
-
-            protected sealed override string Path => "serialise_by_path_and_sheetname.xlsx";
-
-            protected override string WorksheetName => "a_different_sheet_name";
         }
 
 
         public class SerialiseUsingPackageSpec : Spec
         {
-            public SerialiseUsingPackageSpec() {
+            public SerialiseUsingPackageSpec() : base("serialise_by_package.xlsx") {
                 using var serialiser = new ExcelSerializer(Package);
                 Run(serialiser);
             }
-
-
-            protected override string Path => "serialise_by_package.xlsx";
         }
 
 
         public class SerialiseUsingPackageAndSheetnameSpec : Spec
         {
-            public SerialiseUsingPackageAndSheetnameSpec() {
+            public SerialiseUsingPackageAndSheetnameSpec() : base("serialise_by_package_and_sheetname.xlsx", "a_different_sheet_name") {
                 using var serialiser = new ExcelSerializer(Package, WorksheetName);
                 Run(serialiser);
             }
-
-
-            protected override string Path => "serialise_by_package_and_sheetname.xlsx";
-
-            protected override string WorksheetName => "a_different_sheet_name";
         }
 
 
         public class SerialiseUsingWorksheetSpec : Spec
         {
-            public SerialiseUsingWorksheetSpec() {
+            public SerialiseUsingWorksheetSpec() : base("serialise_by_worksheet.xlsx", "a_different_sheetname") {
                 using var serialiser = new ExcelSerializer(Package, Worksheet);
                 Run(serialiser);
             }
-
-
-            protected override string Path => "serialise_by_worksheet.xlsx";
-
-            protected override string WorksheetName => "a_different_sheetname";
         }
 
 
         public class SerialiseUsingRangeSpec : Spec
         {
-            public SerialiseUsingRangeSpec() {
+            public SerialiseUsingRangeSpec() : base("serialise_by_range.xlsx", "Export", 4, 8) {
                 var range = Worksheet.Cells[StartRow, StartColumn, StartRow + Values.Length, StartColumn + 1];
                 using var serialiser = new ExcelSerializer(Package, range);
                 Run(serialiser);
             }
-
-            protected override int StartRow => 4;
-
-            protected override int StartColumn => 8;
-
-            protected override string Path => "serialise_by_range.xlsx";
         }
-
     }
-
 }
