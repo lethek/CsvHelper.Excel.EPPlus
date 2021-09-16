@@ -22,6 +22,10 @@ namespace CsvHelper.Excel
             => package.Workbook.Worksheets[sheetName] ?? package.Workbook.Worksheets.Add(sheetName);
 
 
+        public static ExcelWorksheet GetOrAddWorksheet(this ExcelWorkbook workbook, string sheetName)
+            => workbook.Worksheets[sheetName] ?? workbook.Worksheets.Add(sheetName);
+
+
         public static void Delete(string path) {
             try {
                 var directory = Path.GetDirectoryName(path);

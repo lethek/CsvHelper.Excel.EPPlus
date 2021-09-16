@@ -19,6 +19,28 @@ namespace CsvHelper.Excel
     /// </summary>
     public class ExcelParser : IParser
     {
+        /// <summary>
+        /// Creates a new parser using a new <see cref="ExcelPackage"/> from the given <paramref name="stream"/> and uses the given <paramref name="configuration"/>.
+        /// </summary>
+        /// <param name="stream">The stream of the package.</param>
+        /// <param name="configuration">The configuration.</param>
+        public ExcelParser(Stream stream, CsvConfiguration configuration = null)
+            : this(new ExcelPackage(stream), configuration) {
+            _shouldDisposeWorkbook = true;
+        }
+
+
+        /// <summary>
+        /// Creates a new parser using a new <see cref="ExcelPackage"/> from the given <paramref name="stream"/> and uses the given <paramref name="configuration"/>.
+        /// </summary>
+        /// <param name="stream">The stream of the package.</param>
+        /// <param name="sheetName">The name of the sheet to import data from.</param>
+        /// <param name="configuration">The configuration.</param>
+        public ExcelParser(Stream stream, string sheetName, CsvConfiguration configuration = null)
+            : this(new ExcelPackage(stream), sheetName, configuration) {
+            _shouldDisposeWorkbook = true;
+        }
+
 
         /// <summary>
         /// Creates a new parser using a new <see cref="ExcelPackage"/> from the given <paramref name="path"/> and uses the given <paramref name="configuration"/>.
@@ -108,8 +130,9 @@ namespace CsvHelper.Excel
         private ExcelParser(ExcelRangeBase range, CsvConfiguration configuration) {
             Workbook = range.Worksheet.Workbook;
             _range = range;
-            Configuration = configuration ?? new CsvConfiguration(CultureInfo.CurrentCulture);
+            Configuration = configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture);
             Context = new ReadingContext(TextReader.Null, Configuration, false);
+            FieldReader = new CsvFieldReader(TextReader.Null, Configuration, false);
             FieldCount = range.Worksheet.Dimension.Columns;
         }
 
@@ -150,12 +173,12 @@ namespace CsvHelper.Excel
         /// <summary>
         /// Gets and sets the number of rows to offset the start position from.
         /// </summary>
-        public int RowOffset { get; set; } = 0;
+        public int RowOffset { get; set; }
 
         /// <summary>
         /// Gets and sets the number of columns to offset the start position from.
         /// </summary>
-        public int ColumnOffset { get; set; } = 0;
+        public int ColumnOffset { get; set; }
 
 
         /// <summary>

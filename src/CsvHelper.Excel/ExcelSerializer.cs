@@ -16,6 +16,36 @@ namespace CsvHelper.Excel
     /// </summary>
     public class ExcelSerializer : ISerializer
     {
+        /// <summary>
+        /// Creates a new serializer using a new <see cref="ExcelPackage"/> saved to the given <paramref name="stream"/>.
+        /// <remarks>
+        /// The package will not be saved until the serializer is disposed.
+        /// </remarks>
+        /// </summary>
+        /// <param name="stream">The stream to which to save the package.</param>
+        /// <param name="configuration">The configuration</param>
+        public ExcelSerializer(Stream stream, CsvConfiguration configuration = null)
+            : this(new ExcelPackage(), configuration) {
+            _stream = stream;
+            _disposePackage = true;
+        }
+
+
+        /// <summary>
+        /// Creates a new serializer using a new <see cref="ExcelPackage"/> saved to the given <paramref name="stream"/>.
+        /// <remarks>
+        /// The package will not be saved until the serializer is disposed.
+        /// </remarks>
+        /// </summary>
+        /// <param name="stream">The stream to which to save the package.</param>
+        /// <param name="sheetName">The name of the sheet to which to save</param>
+        public ExcelSerializer(Stream stream, string sheetName)
+            : this(new ExcelPackage(), sheetName) {
+            _stream = stream;
+            _disposePackage = true;
+        }
+
+
 
         /// <summary>
         /// Creates a new serializer using a new <see cref="ExcelPackage"/> saved to the given <paramref name="path"/>.
@@ -26,8 +56,7 @@ namespace CsvHelper.Excel
         /// <param name="path">The path to which to save the package.</param>
         /// <param name="configuration">The configuration</param>
         public ExcelSerializer(string path, CsvConfiguration configuration = null)
-            : this(new ExcelPackage(), configuration) {
-            _path = path;
+            : this(new ExcelPackage(new FileInfo(path)), configuration) {
             _disposePackage = true;
         }
 
@@ -41,8 +70,7 @@ namespace CsvHelper.Excel
         /// <param name="path">The path to which to save the package.</param>
         /// <param name="sheetName">The name of the sheet to which to save</param>
         public ExcelSerializer(string path, string sheetName)
-            : this(new ExcelPackage(), sheetName) {
-            _path = path;
+            : this(new ExcelPackage(new FileInfo(path)), sheetName) {
             _disposePackage = true;
         }
 
@@ -103,8 +131,8 @@ namespace CsvHelper.Excel
         private ExcelSerializer(ExcelPackage package, ExcelRangeBase range, CsvConfiguration configuration) {
             Package = package;
             _range = range;
-            Configuration = configuration ?? new CsvConfiguration(CultureInfo.CurrentCulture);
-            Configuration.ShouldQuote = (field, ctx) => false;
+            Configuration = configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture);
+            Configuration.ShouldQuote = (s, context) => false;
             Context = new WritingContext(TextWriter.Null, Configuration, false);
         }
 
@@ -130,12 +158,12 @@ namespace CsvHelper.Excel
         /// <summary>
         /// Gets and sets the number of rows to offset the start position from.
         /// </summary>
-        public int RowOffset { get; set; } = 0;
+        public int RowOffset { get; set; }
 
         /// <summary>
         /// Gets and sets the number of columns to offset the start position from.
         /// </summary>
-        public int ColumnOffset { get; set; } = 0;
+        public int ColumnOffset { get; set; }
 
 
         /// <summary>
@@ -208,8 +236,12 @@ namespace CsvHelper.Excel
 
 
         public ValueTask DisposeAsync() {
-            Dispose();
-            return default;
+            try {
+                Dispose();
+                return default;
+            } catch (Exception exception) {
+                return new ValueTask(Task.FromException(exception));
+            }
         }
 
 
@@ -229,8 +261,12 @@ namespace CsvHelper.Excel
             if (!_disposed) {
                 if (disposing) {
                     if (_disposePackage) {
-                        Package?.SaveAs(new FileInfo(_path));
-                        Package?.Dispose();
+                        if (_stream != null) {
+                            Package.SaveAs(_stream);
+                        } else {
+                            Package.Save();
+                        }
+                        Package.Dispose();
                     }
                 }
                 _disposed = true;
@@ -251,7 +287,7 @@ namespace CsvHelper.Excel
         }
 
 
-        private readonly string _path;
+        private readonly Stream _stream;
         private readonly bool _disposePackage;
         private readonly ExcelRangeBase _range;
         private int _currentRow = 1;

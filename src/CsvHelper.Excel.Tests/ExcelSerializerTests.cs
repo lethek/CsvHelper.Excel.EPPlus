@@ -171,5 +171,49 @@ namespace CsvHelper.Excel.Tests
                 Run(serialiser);
             }
         }
+
+
+        public class SerialiseUsingStreamSpec : Spec
+        {
+            public SerialiseUsingStreamSpec() : base("serialise_by_workbook.xlsx") {
+                _stream = new MemoryStream();
+                using var serialiser = new ExcelSerializer(_stream);
+                Run(serialiser);
+            }
+
+            protected override ExcelPackage CreatePackage() {
+                _stream.Position = 0;
+                return new ExcelPackage(_stream);
+            }
+
+            protected override void Dispose(bool disposing) {
+                base.Dispose(disposing);
+                _stream.Dispose();
+            }
+
+            private readonly Stream _stream;
+        }
+
+
+        public class SerialiseUsingStreamAndSheetnameSpec : Spec
+        {
+            public SerialiseUsingStreamAndSheetnameSpec() : base("serialise_by_workbook_and_sheetname.xlsx", "a_different_sheet_name") {
+                _stream = new MemoryStream();
+                using var serialiser = new ExcelSerializer(_stream, WorksheetName);
+                Run(serialiser);
+            }
+
+            protected override ExcelPackage CreatePackage() {
+                _stream.Position = 0;
+                return new ExcelPackage(_stream);
+            }
+
+            protected override void Dispose(bool disposing) {
+                base.Dispose(disposing);
+                _stream.Dispose();
+            }
+
+            private readonly Stream _stream;
+        }
     }
 }

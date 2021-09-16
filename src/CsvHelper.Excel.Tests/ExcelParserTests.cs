@@ -108,7 +108,7 @@ namespace CsvHelper.Excel.Tests
 
         public class ParseUsingPathWithOffsetsSpec : Spec
         {
-            public ParseUsingPathWithOffsetsSpec(): base("parse_by_path_with_offset.xlsx", "Export", 5, 5) {
+            public ParseUsingPathWithOffsetsSpec() : base("parse_by_path_with_offset.xlsx", "Export", 5, 5) {
                 using var parser = new ExcelParser(Path) { ColumnOffset = StartColumn - 1, RowOffset = StartRow - 1 };
                 Run(parser);
             }
@@ -170,6 +170,39 @@ namespace CsvHelper.Excel.Tests
                 }
                 Package.SaveAs(new FileInfo(Path));
                 using var parser = new ExcelParser(Path);
+                Run(parser);
+            }
+        }
+
+
+        public class ParseUsingStreamSpec : Spec
+        {
+            public ParseUsingStreamSpec() : base("parse_by_stream.xlsx") {
+                using var stream = File.OpenRead(Path);
+                using var parser = new ExcelParser(stream);
+                Run(parser);
+            }
+        }
+
+
+        public class ParseUsingStreamWithOffsetsSpec : Spec
+        {
+            public ParseUsingStreamWithOffsetsSpec() : base("parse_by_stream_with_offset.xlsx", "Export", 5, 5) {
+                using var stream = File.OpenRead(Path);
+                using var parser = new ExcelParser(stream) {
+                    ColumnOffset = StartColumn - 1,
+                    RowOffset = StartRow - 1
+                };
+                Run(parser);
+            }
+        }
+
+
+        public class ParseUsingStreamAndSheetNameSpec : Spec
+        {
+            public ParseUsingStreamAndSheetNameSpec() : base("parse_by_stream_and_sheetname.xlsx", "a_different_sheet_name") {
+                using var stream = File.OpenRead(Path);
+                using var parser = new ExcelParser(stream, WorksheetName);
                 Run(parser);
             }
         }
