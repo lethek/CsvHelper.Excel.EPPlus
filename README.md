@@ -2,12 +2,14 @@
 
 # Csv Helper for Excel
 
-***This project has been forked from https://github.com/christophano/CsvHelper.Excel and https://github.com/youngcm2/CsvHelper.Excel and heavily modified; primarily so that it can be used with the final LGPL version of [EPPlus](https://github.com/JanKallman/EPPlus) instead of ClosedXml.***
+***This project has been forked from https://github.com/christophano/CsvHelper.Excel and https://github.com/youngcm2/CsvHelper.Excel and heavily modified; primarily so that it can be used with the final LGPL version of [EPPlus](https://github.com/JanKallman/EPPlus) instead of ClosedXml, because it works with encrypted/password-protected Excel documents.***
 
 ***NuGet packages of this fork are available from MyGet:  https://www.myget.org/feed/lethek/package/nuget/CsvHelper.Excel***
 
 CsvHelper for Excel is an extension that links two excellent libraries, [CsvHelper](https://joshclose.github.io/CsvHelper/) and [EPPlus](https://github.com/JanKallman/EPPlus).
 It provides an implementation of `IParser` and `ISerializer` from [CsvHelper](https://joshclose.github.io/CsvHelper/) that read and write to Excel using [EPPlus](https://github.com/JanKallman/EPPlus).
+
+If you need to parse or serialize a password-protected Excel document you will need to create an instance of `ExcelPackage` yourself (e.g. `new ExcelPackage("file.xlsx", password)`) and use one of the constructors described below which take that as a parameter.
 
 ## ExcelParser
 `ExcelParser` implements `IParser` and allows you to specify the path of the Excel package, pass an instance of `ExcelPackage`, `ExcelWorkbook`, `ExcelWorksheet`, `ExcelRange` or a `Stream` that you have already loaded to use as the data source.
@@ -85,4 +87,4 @@ writer.WriteRecords(people);
 var bytes = stream.ToArray();
 ```
 
-All constructor options have overloads allowing you to specify your own `Configuration`, otherwise the default is used.
+All constructor options have overloads allowing you to specify your own `CsvConfiguration`, otherwise the default is used.
