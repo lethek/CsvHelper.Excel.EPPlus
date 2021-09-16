@@ -66,7 +66,7 @@ namespace CsvHelper.Excel.Tests
 
             protected void Run(ExcelParser parser) {
                 using var reader = new CsvReader(parser);
-                reader.Configuration.AutoMap<Person>();
+                reader.Context.AutoMap<Person>();
                 Results = reader.GetRecords<Person>().ToArray();
             }
 

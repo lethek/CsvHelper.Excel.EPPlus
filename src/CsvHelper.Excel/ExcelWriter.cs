@@ -14,7 +14,7 @@ namespace CsvHelper.Excel
     /// <summary>
     /// Defines methods used to serialize data into an Excel (2007+) file.
     /// </summary>
-    public class ExcelSerializer : ISerializer
+    public class ExcelWriter : CsvWriter
     {
         /// <summary>
         /// Creates a new serializer using a new <see cref="ExcelPackage"/> saved to the given <paramref name="stream"/>.
@@ -24,7 +24,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="stream">The stream to which to save the package.</param>
         /// <param name="configuration">The configuration</param>
-        public ExcelSerializer(Stream stream, CsvConfiguration configuration = null)
+        public ExcelWriter(Stream stream, CsvConfiguration configuration = null)
             : this(new ExcelPackage(), configuration) {
             _stream = stream;
             _disposePackage = true;
@@ -39,7 +39,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="stream">The stream to which to save the package.</param>
         /// <param name="sheetName">The name of the sheet to which to save</param>
-        public ExcelSerializer(Stream stream, string sheetName)
+        public ExcelWriter(Stream stream, string sheetName)
             : this(new ExcelPackage(), sheetName) {
             _stream = stream;
             _disposePackage = true;
@@ -55,7 +55,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="path">The path to which to save the package.</param>
         /// <param name="configuration">The configuration</param>
-        public ExcelSerializer(string path, CsvConfiguration configuration = null)
+        public ExcelWriter(string path, CsvConfiguration configuration = null)
             : this(new ExcelPackage(new FileInfo(path)), configuration) {
             _disposePackage = true;
         }
@@ -69,7 +69,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="path">The path to which to save the package.</param>
         /// <param name="sheetName">The name of the sheet to which to save</param>
-        public ExcelSerializer(string path, string sheetName)
+        public ExcelWriter(string path, string sheetName)
             : this(new ExcelPackage(new FileInfo(path)), sheetName) {
             _disposePackage = true;
         }
@@ -85,7 +85,7 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="package">The package to write the data to.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelSerializer(ExcelPackage package, CsvConfiguration configuration = null)
+        public ExcelWriter(ExcelPackage package, CsvConfiguration configuration = null)
             : this(package, "Export", configuration) { }
 
 
@@ -100,7 +100,7 @@ namespace CsvHelper.Excel
         /// <param name="package">The package to write the data to.</param>
         /// <param name="sheetName">The name of the sheet to write to.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelSerializer(ExcelPackage package, string sheetName, CsvConfiguration configuration = null)
+        public ExcelWriter(ExcelPackage package, string sheetName, CsvConfiguration configuration = null)
             : this(package, package.GetOrAddWorksheet(sheetName), configuration) { }
 
 
@@ -114,7 +114,7 @@ namespace CsvHelper.Excel
         /// <param name="package">The package to write the data to.</param>
         /// <param name="worksheet">The worksheet to write the data to.</param>
         /// <param name="configuration">The configuration</param>
-        public ExcelSerializer(ExcelPackage package, ExcelWorksheet worksheet, CsvConfiguration configuration = null)
+        public ExcelWriter(ExcelPackage package, ExcelWorksheet worksheet, CsvConfiguration configuration = null)
             : this(package, (ExcelRangeBase)worksheet.Cells, configuration) { }
 
 
@@ -124,28 +124,21 @@ namespace CsvHelper.Excel
         /// <param name="package">The package to write the data to.</param>
         /// <param name="range">The range to write the data to.</param>
         /// <param name="configuration">The configuration</param>
-        public ExcelSerializer(ExcelPackage package, ExcelRange range, CsvConfiguration configuration = null)
+        public ExcelWriter(ExcelPackage package, ExcelRange range, CsvConfiguration configuration = null)
             : this(package, (ExcelRangeBase)range, configuration) { }
 
 
-        private ExcelSerializer(ExcelPackage package, ExcelRangeBase range, CsvConfiguration configuration) {
+        private ExcelWriter(ExcelPackage package, ExcelRangeBase range, CsvConfiguration configuration)
+            : base(TextWriter.Null, configuration)
+        {
+            configuration.Validate();
+
             Package = package;
             _range = range;
-            Configuration = configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture);
-            Configuration.ShouldQuote = (s, context) => false;
-            Context = new WritingContext(TextWriter.Null, Configuration, false);
+            //Configuration = configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture);
+            //Configuration.ShouldQuote = (s, context) => false;
+            //Context = new WritingContext(TextWriter.Null, Configuration, false);
         }
-
-
-        /// <summary>
-        /// Gets the writing context.
-        /// </summary>
-        public WritingContext Context { get; }
-
-        /// <summary>
-        /// Gets the configuration.
-        /// </summary>
-        public CsvConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the package to which the data is being written.
@@ -174,8 +167,6 @@ namespace CsvHelper.Excel
         /// Thrown is the serializer has been disposed.
         /// </exception>
         public virtual void Write(string[] record) {
-            CheckDisposed();
-
             for (var i = 0; i < record.Length; i++) {
                 var row = _range.Start.Row + _currentRow + RowOffset - 1;
                 var column = _range.Start.Column + ColumnOffset + i;
@@ -212,9 +203,6 @@ namespace CsvHelper.Excel
         }
 
 
-        ISerializerConfiguration ISerializer.Configuration => Configuration;
-
-
         /// <summary>
         /// Replaces the hexadecimal symbols.
         /// </summary>
@@ -227,28 +215,9 @@ namespace CsvHelper.Excel
 
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Finalizes an instance of the <see cref="ExcelWriter"/> class.
         /// </summary>
-        public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-
-        public ValueTask DisposeAsync() {
-            try {
-                Dispose();
-                return default;
-            } catch (Exception exception) {
-                return new ValueTask(Task.FromException(exception));
-            }
-        }
-
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="ExcelSerializer"/> class.
-        /// </summary>
-        ~ExcelSerializer() {
+        ~ExcelWriter() {
             Dispose(false);
         }
 
@@ -257,34 +226,59 @@ namespace CsvHelper.Excel
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing) {
-            if (!_disposed) {
-                if (disposing) {
-                    if (_disposePackage) {
-                        if (_stream != null) {
-                            Package.SaveAs(_stream);
-                        } else {
-                            Package.Save();
-                        }
-                        Package.Dispose();
-                    }
-                }
-                _disposed = true;
-            }
-        }
-
-
-        /// <summary>
-        /// Checks if the instance has been disposed of.
-        /// </summary>
-        /// <exception cref="ObjectDisposedException">
-        /// Thrown is the serializer has been disposed.
-        /// </exception>
-        protected virtual void CheckDisposed() {
+        protected override void Dispose(bool disposing) {
             if (_disposed) {
-                throw new ObjectDisposedException(GetType().ToString());
+                return;
             }
+
+            Flush();
+            if (_stream != null) {
+                Package.SaveAs(_stream);
+                _stream.Flush();
+            } else {
+                Package.Save();
+            }
+
+            if (disposing) {
+                if (_disposePackage) {
+                    Package.Dispose();
+                }
+            }
+            _disposed = true;
         }
+
+
+        #if !NET45 && !NET47 && !NETSTANDARD2_0
+		/// <inheritdoc/>
+		protected override async ValueTask DisposeAsync(bool disposing)
+		{
+			if (_disposed) {
+				return;
+			}
+
+			await FlushAsync().ConfigureAwait(false);
+            if (_stream != null) {
+                Package.SaveAs(_stream);
+                await _stream.FlushAsync().ConfigureAwait(false);
+            } else {
+                Package.Save();
+            }
+
+			if (disposing) {
+                //Dispose managed state (managed objects)
+                if (_disposePackage) {
+                    Package.Dispose();
+                }
+				/*if (!_leaveOpen) {
+					await _stream.DisposeAsync().ConfigureAwait(false);
+				}*/
+			}
+
+			// Free unmanaged resources (unmanaged objects) and override finalizer
+			// Set large fields to null
+			_disposed = true;
+		}
+        #endif
 
 
         private readonly Stream _stream;

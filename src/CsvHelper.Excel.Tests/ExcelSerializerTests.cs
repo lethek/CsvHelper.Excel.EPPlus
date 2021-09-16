@@ -55,10 +55,9 @@ namespace CsvHelper.Excel.Tests
                 => Package.GetOrAddWorksheet(WorksheetName);
 
 
-            protected void Run(ExcelSerializer serialiser) {
-                using var writer = new CsvWriter(serialiser);
-                writer.Configuration.AutoMap<Person>();
-                writer.WriteRecords(Values);
+            protected void Run(ExcelWriter excelWriter) {
+                excelWriter.Context.AutoMap<Person>();
+                excelWriter.WriteRecords(Values);
             }
 
 
@@ -109,8 +108,8 @@ namespace CsvHelper.Excel.Tests
         public class SerialiseUsingPathSpec : Spec
         {
             public SerialiseUsingPathSpec() : base("serialise_by_path.xlsx") {
-                using var serialiser = new ExcelSerializer(Path);
-                Run(serialiser);
+                using var excelWriter = new ExcelWriter(Path);
+                Run(excelWriter);
             }
         }
 
@@ -118,11 +117,11 @@ namespace CsvHelper.Excel.Tests
         public class SerialiseUsingPathWithOffsetsSpec : Spec
         {
             public SerialiseUsingPathWithOffsetsSpec() : base("serialise_by_path_with_offsets.xlsx", "Export", 5, 5) {
-                using var serialiser = new ExcelSerializer(Path) {
+                using var excelWriter = new ExcelWriter(Path) {
                     ColumnOffset = StartColumn - 1,
                     RowOffset = StartRow - 1
                 };
-                Run(serialiser);
+                Run(excelWriter);
             }
         }
 
@@ -130,8 +129,8 @@ namespace CsvHelper.Excel.Tests
         public class SerialiseUsingPathAndSheetnameSpec : Spec
         {
             public SerialiseUsingPathAndSheetnameSpec() : base("serialise_by_path_and_sheetname.xlsx", "a_different_sheet_name") {
-                using var serialiser = new ExcelSerializer(Path, WorksheetName);
-                Run(serialiser);
+                using var excelWriter = new ExcelWriter(Path, WorksheetName);
+                Run(excelWriter);
             }
         }
 
@@ -139,8 +138,8 @@ namespace CsvHelper.Excel.Tests
         public class SerialiseUsingPackageSpec : Spec
         {
             public SerialiseUsingPackageSpec() : base("serialise_by_package.xlsx") {
-                using var serialiser = new ExcelSerializer(Package);
-                Run(serialiser);
+                using var excelWriter = new ExcelWriter(Package);
+                Run(excelWriter);
             }
         }
 
@@ -148,8 +147,8 @@ namespace CsvHelper.Excel.Tests
         public class SerialiseUsingPackageAndSheetnameSpec : Spec
         {
             public SerialiseUsingPackageAndSheetnameSpec() : base("serialise_by_package_and_sheetname.xlsx", "a_different_sheet_name") {
-                using var serialiser = new ExcelSerializer(Package, WorksheetName);
-                Run(serialiser);
+                using var excelWriter = new ExcelWriter(Package, WorksheetName);
+                Run(excelWriter);
             }
         }
 
@@ -157,8 +156,8 @@ namespace CsvHelper.Excel.Tests
         public class SerialiseUsingWorksheetSpec : Spec
         {
             public SerialiseUsingWorksheetSpec() : base("serialise_by_worksheet.xlsx", "a_different_sheetname") {
-                using var serialiser = new ExcelSerializer(Package, Worksheet);
-                Run(serialiser);
+                using var excelWriter = new ExcelWriter(Package, Worksheet);
+                Run(excelWriter);
             }
         }
 
@@ -167,8 +166,8 @@ namespace CsvHelper.Excel.Tests
         {
             public SerialiseUsingRangeSpec() : base("serialise_by_range.xlsx", "Export", 4, 8) {
                 var range = Worksheet.Cells[StartRow, StartColumn, StartRow + Values.Length, StartColumn + 1];
-                using var serialiser = new ExcelSerializer(Package, range);
-                Run(serialiser);
+                using var excelWriter = new ExcelWriter(Package, range);
+                Run(excelWriter);
             }
         }
 
@@ -177,8 +176,8 @@ namespace CsvHelper.Excel.Tests
         {
             public SerialiseUsingStreamSpec() : base("serialise_by_workbook.xlsx") {
                 _stream = new MemoryStream();
-                using var serialiser = new ExcelSerializer(_stream);
-                Run(serialiser);
+                using var excelWriter = new ExcelWriter(_stream);
+                Run(excelWriter);
             }
 
             protected override ExcelPackage CreatePackage() {
@@ -199,8 +198,8 @@ namespace CsvHelper.Excel.Tests
         {
             public SerialiseUsingStreamAndSheetnameSpec() : base("serialise_by_workbook_and_sheetname.xlsx", "a_different_sheet_name") {
                 _stream = new MemoryStream();
-                using var serialiser = new ExcelSerializer(_stream, WorksheetName);
-                Run(serialiser);
+                using var excelWriter = new ExcelWriter(_stream, WorksheetName);
+                Run(excelWriter);
             }
 
             protected override ExcelPackage CreatePackage() {
