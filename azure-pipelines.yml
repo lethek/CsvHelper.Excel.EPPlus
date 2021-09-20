@@ -3,9 +3,6 @@
 # Add steps that publish symbols, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
-pool:
-  vmImage: 'windows-latest'
-
 variables:
   solution: '**/*.sln'
   solutionFolder: './src'
@@ -13,21 +10,34 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- script: dotnet restore $(solutionFolder)
-  displayName: 'dotnet restore'
-
-- script: dotnet build $(solutionFolder) --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+- task: UseDotNet@2
+  displayName: Use .NET 5
+  inputs:
+    packageType: 'sdk'
+    version: '5.x'
 
 - task: DotNetCoreCLI@2
-  displayName: 'dotnet test $(buildConfiguration)'
-  inputs:
-    command: test
-    projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
+  displayName: Restore
 
-- script: dotnet pack $(solutionFolder) --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
-  displayName: 'dotnet pack $(buildConfiguration)'
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: 'build'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: 'test'
+    arguments: '--configuration $(buildConfiguration) --collect "Code Coverage"'
+    nobuild: true
+
+- task: DotNetCoreCLI@2
+  displayName: Pack
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/*.csproj;!**/*Tests/*.csproj'
+    nobuild: true
 
 - task: PublishBuildArtifacts@1
   displayName: 'publish artifacts'
