@@ -10,7 +10,7 @@ using Xunit;
 
 namespace CsvHelper.Excel.Tests
 {
-    public class ExcelSerializerTests
+    public class ExcelWriterTests
     {
         public abstract class Spec : IDisposable
         {
