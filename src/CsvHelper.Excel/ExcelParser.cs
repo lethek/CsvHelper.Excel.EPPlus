@@ -129,14 +129,16 @@ namespace CsvHelper.Excel
 
 
         private ExcelParser(ExcelRangeBase range, CsvConfiguration configuration) {
-            Workbook = range.Worksheet.Workbook;
-            _range = range;
             Configuration = configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture);
             Context = new CsvContext(this);
+            Workbook = range.Worksheet.Workbook;
 
-            var worksheetDimensions = range.Worksheet.Dimension;
-            _columnCount = range.Start.Column + worksheetDimensions.Start.Column + worksheetDimensions.Columns - ColumnOffset - 2;
-            _rowCount = range.Start.Row + worksheetDimensions.Start.Row + worksheetDimensions.Rows - RowOffset - 2;
+            _range = (range.Address == "A:XFD")
+                ? range.Worksheet.Cells[range.Worksheet.Dimension.Address]
+                : range;
+
+            _columnCount = _range.Columns;
+            _rowCount = _range.Rows;
 
             //TODO: support Configuration.LeaveOpen
             //_leaveOpen = Configuration.LeaveOpen;
@@ -153,18 +155,6 @@ namespace CsvHelper.Excel
 
 
         /// <summary>
-        /// Gets and sets the number of rows to offset the reading position from.
-        /// </summary>
-        public int RowOffset { get; set; }
-
-
-        /// <summary>
-        /// Gets and sets the number of columns to offset the reading position from.
-        /// </summary>
-        public int ColumnOffset { get; set; }
-
-
-        /// <summary>
         /// Reads a record from the Excel file.
         /// </summary>
         /// <returns>
@@ -172,7 +162,7 @@ namespace CsvHelper.Excel
         /// </returns>
         /// <exception cref="ObjectDisposedException">Thrown if the parser has been disposed.</exception>
         public bool Read() {
-            if (Row > _rowCount - RowOffset) {
+            if (Row > _rowCount) {
                 return false;
             }
 
@@ -198,7 +188,7 @@ namespace CsvHelper.Excel
 
         public long ByteCount => -1;
         public long CharCount => -1;
-        public int Count => _columnCount - ColumnOffset;
+        public int Count => _columnCount;
 
         public string this[int index] => Record.ElementAtOrDefault(index);
 
@@ -251,11 +241,11 @@ namespace CsvHelper.Excel
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private string[] GetRecord() {
-            var fromRow = _range.Start.Row + RowOffset + Row - 1;
-            var fromColumn = _range.Start.Column + ColumnOffset;
+            var fromRow = _range.Start.Row + Row - 1;
+            var fromColumn = _range.Start.Column;
 
             var toRow = fromRow;
-            var toColumn = _columnCount;
+            var toColumn = _range.Start.Column + _columnCount;
 
             var subRange = _range.Worksheet.Cells[fromRow, fromColumn, toRow, toColumn];
             subRange.Calculate(DefaultExcelCalculationOption);

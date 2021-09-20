@@ -23,10 +23,12 @@ namespace CsvHelper.Excel
         /// <value>The package.</value>
         public ExcelPackage Package { get; }
 
+
         /// <summary>
         /// Gets and sets the number of rows to offset the start position from.
         /// </summary>
         public int RowOffset { get; set; }
+
 
         /// <summary>
         /// Gets and sets the number of columns to offset the start position from.
@@ -157,10 +159,6 @@ namespace CsvHelper.Excel
             //_leaveOpen = configuration.LeaveOpen;
 
             _sanitizeForInjection = configuration.SanitizeForInjection;
-
-            //Configuration = configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture);
-            //Configuration.ShouldQuote = (s, context) => false;
-            //Context = new WritingContext(TextWriter.Null, Configuration, false);
         }
 
 
@@ -173,6 +171,7 @@ namespace CsvHelper.Excel
             WriteToCell(field);
             _index++;
         }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void WriteToCell(string value) {
@@ -191,6 +190,7 @@ namespace CsvHelper.Excel
             _row++;
         }
 
+
         /// <inheritdoc/>
         public override async Task NextRecordAsync() {
             await FlushAsync();
@@ -198,10 +198,12 @@ namespace CsvHelper.Excel
             _row++;
         }
 
+
         /// <inheritdoc/>
         public override void Flush() {
             //_stream?.Flush();
         }
+
 
         /// <inheritdoc/>
         public override Task FlushAsync() {
