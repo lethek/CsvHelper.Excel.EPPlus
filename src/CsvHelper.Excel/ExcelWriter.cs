@@ -1,8 +1,6 @@
-using System;
 using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using CsvHelper.Configuration;
@@ -37,17 +35,16 @@ namespace CsvHelper.Excel
 
 
         /// <summary>
-        /// Creates a new serializer using a new <see cref="ExcelPackage"/> saved to the given <paramref name="stream"/>.
+        /// Creates a new serializer using a new <see cref="ExcelPackage"/> saved to the given <paramref name="path"/>.
         /// <remarks>
         /// The package will not be saved until the serializer is disposed.
         /// </remarks>
         /// </summary>
-        /// <param name="stream">The stream to which to save the package.</param>
-        /// <param name="configuration">The configuration</param>
-        public ExcelWriter(Stream stream, CultureInfo culture = null)
-            : this(new ExcelPackage(), culture) {
-            _stream = stream;
-            _leaveOpen = true;
+        /// <param name="path">The path to which to save the package.</param>
+        /// <param name="sheetName">The name of the sheet to which to save.</param>
+        public ExcelWriter(string path, string sheetName = "Export", CsvConfiguration configuration = null)
+            : this(new ExcelPackage(new FileInfo(path)), sheetName, configuration) {
+            _isPackageOwner = true;
         }
 
 
@@ -59,54 +56,11 @@ namespace CsvHelper.Excel
         /// </summary>
         /// <param name="stream">The stream to which to save the package.</param>
         /// <param name="sheetName">The name of the sheet to which to save</param>
-        public ExcelWriter(Stream stream, string sheetName)
-            : this(new ExcelPackage(), sheetName) {
+        public ExcelWriter(Stream stream, string sheetName = "Export", CsvConfiguration configuration = null)
+            : this(new ExcelPackage(), sheetName, configuration) {
             _stream = stream;
-            _leaveOpen = true;
+            _isPackageOwner = true;
         }
-
-
-
-        /// <summary>
-        /// Creates a new serializer using a new <see cref="ExcelPackage"/> saved to the given <paramref name="path"/>.
-        /// <remarks>
-        /// The package will not be saved until the serializer is disposed.
-        /// </remarks>
-        /// </summary>
-        /// <param name="path">The path to which to save the package.</param>
-        /// <param name="configuration">The configuration</param>
-        public ExcelWriter(string path, CultureInfo culture = null)
-            : this(new ExcelPackage(new FileInfo(path)), culture) {
-            _leaveOpen = true;
-        }
-
-
-        /// <summary>
-        /// Creates a new serializer using a new <see cref="ExcelPackage"/> saved to the given <paramref name="path"/>.
-        /// <remarks>
-        /// The package will not be saved until the serializer is disposed.
-        /// </remarks>
-        /// </summary>
-        /// <param name="path">The path to which to save the package.</param>
-        /// <param name="sheetName">The name of the sheet to which to save</param>
-        public ExcelWriter(string path, string sheetName)
-            : this(new ExcelPackage(new FileInfo(path)), sheetName) {
-            _leaveOpen = true;
-        }
-
-
-        /// <summary>
-        /// Creates a new serializer using the given <see cref="ExcelPackage"/> and <see cref="Configuration"/>.
-        /// <remarks>
-        /// The <paramref name="package"/> will <b><i>not</i></b> be disposed of when the serializer is disposed.
-        /// The package will <b><i>not</i></b> be saved by the serializer.
-        /// A new worksheet will be added to the package.
-        /// </remarks>
-        /// </summary>
-        /// <param name="package">The package to write the data to.</param>
-        /// <param name="configuration">The configuration.</param>
-        public ExcelWriter(ExcelPackage package, CultureInfo culture = null)
-            : this(package, "Export", culture) { }
 
 
         /// <summary>
@@ -120,8 +74,8 @@ namespace CsvHelper.Excel
         /// <param name="package">The package to write the data to.</param>
         /// <param name="sheetName">The name of the sheet to write to.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelWriter(ExcelPackage package, string sheetName, CultureInfo culture = null)
-            : this(package, package.GetOrAddWorksheet(sheetName), culture) { }
+        public ExcelWriter(ExcelPackage package, string sheetName = "Export", CsvConfiguration configuration = null)
+            : this(package, package.GetOrAddWorksheet(sheetName), configuration) { }
 
 
         /// <summary>
@@ -134,8 +88,8 @@ namespace CsvHelper.Excel
         /// <param name="package">The package to write the data to.</param>
         /// <param name="worksheet">The worksheet to write the data to.</param>
         /// <param name="configuration">The configuration</param>
-        public ExcelWriter(ExcelPackage package, ExcelWorksheet worksheet, CultureInfo culture = null)
-            : this(package, (ExcelRangeBase)worksheet.Cells, new CsvConfiguration(culture ?? CultureInfo.InvariantCulture)) { }
+        public ExcelWriter(ExcelPackage package, ExcelWorksheet worksheet, CsvConfiguration configuration = null)
+            : this(package, worksheet.Cells, configuration) { }
 
 
         /// <summary>
@@ -144,8 +98,8 @@ namespace CsvHelper.Excel
         /// <param name="package">The package to write the data to.</param>
         /// <param name="range">The range to write the data to.</param>
         /// <param name="configuration">The configuration</param>
-        public ExcelWriter(ExcelPackage package, ExcelRange range, CultureInfo culture = null)
-            : this(package, (ExcelRangeBase)range, new CsvConfiguration(culture ?? CultureInfo.InvariantCulture)) { }
+        public ExcelWriter(ExcelPackage package, ExcelRange range, CsvConfiguration configuration = null)
+            : this(package, (ExcelRangeBase)range, configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture) { LeaveOpen = true }) { }
 
 
         private ExcelWriter(ExcelPackage package, ExcelRangeBase range, CsvConfiguration configuration)
@@ -155,9 +109,7 @@ namespace CsvHelper.Excel
             Package = package;
             _range = range;
 
-            //TODO: implement support for the configuration manually specifying LeaveOpen
-            //_leaveOpen = configuration.LeaveOpen;
-
+            _leaveOpen = configuration.LeaveOpen;
             _sanitizeForInjection = configuration.SanitizeForInjection;
         }
 
@@ -193,23 +145,23 @@ namespace CsvHelper.Excel
 
         /// <inheritdoc/>
         public override async Task NextRecordAsync() {
-            await FlushAsync();
+            await FlushAsync().ConfigureAwait(false);
             _index = 1;
             _row++;
         }
 
 
-        /// <inheritdoc/>
-        public override void Flush() {
-            //_stream?.Flush();
-        }
+        /// <summary>
+        /// Implementation forced by CsvHelper : <see cref="IParser"/>.
+        /// </summary>
+        public override void Flush() { }
 
 
-        /// <inheritdoc/>
-        public override Task FlushAsync() {
-            //return _stream?.FlushAsync();
-            return Task.CompletedTask;
-        }
+        /// <summary>
+        /// Implementation forced by CsvHelper : <see cref="IParser"/>.
+        /// </summary>
+        public override Task FlushAsync()
+            => Task.CompletedTask;
 
 
         /// <summary>
@@ -221,10 +173,8 @@ namespace CsvHelper.Excel
         /// <summary>
         /// Implementation forced by CsvHelper : <see cref="IParser"/>
         /// </summary>
-        public Task WriteLineAsync() {
-            WriteLine();
-            return Task.CompletedTask;
-        }
+        public Task WriteLineAsync()
+            => Task.CompletedTask;
 
 
         /// <summary>
@@ -245,8 +195,11 @@ namespace CsvHelper.Excel
             }
 
             if (disposing) {
-                if (_leaveOpen) {
+                if (!_leaveOpen || _isPackageOwner) {
                     Package.Dispose();
+                }
+                if (!_leaveOpen) {
+                    _stream?.Dispose();
                 }
             }
             _disposed = true;
@@ -270,12 +223,14 @@ namespace CsvHelper.Excel
 
             if (disposing) {
                 //Dispose managed state (managed objects)
-                if (_leaveOpen) {
+                if (!_leaveOpen || _isPackageOwner) {
                     Package.Dispose();
                 }
-                /*if (!_leaveOpen) {
-                    await _stream.DisposeAsync().ConfigureAwait(false);
-                }*/
+                if (!_leaveOpen) {
+                    if (_stream != null) {
+                        await _stream.DisposeAsync().ConfigureAwait(false);
+                    }
+                }
             }
 
             // Free unmanaged resources (unmanaged objects) and override finalizer
@@ -285,13 +240,17 @@ namespace CsvHelper.Excel
 #endif
 
 
-        private readonly Stream _stream;
-        private readonly ExcelRangeBase _range;
+        private readonly bool _isPackageOwner;
         private readonly bool _leaveOpen;
         private readonly bool _sanitizeForInjection;
+
+        private readonly Stream _stream;
+        private readonly ExcelRangeBase _range;
+
+        private bool _disposed;
+
         private int _row = 1;
         private int _index = 1;
-        private bool _disposed;
     }
 
 }

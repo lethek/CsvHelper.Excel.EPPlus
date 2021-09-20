@@ -1,11 +1,14 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 
 using OfficeOpenXml;
 
 
+[assembly: InternalsVisibleTo("CsvHelper.Excel.Tests")]
+
 namespace CsvHelper.Excel
 {
-    public static class Helpers
+    internal static class Helpers
     {
         public static ExcelPackage GetOrCreatePackage(string path, string worksheetName) {
             var file = new FileInfo(path);

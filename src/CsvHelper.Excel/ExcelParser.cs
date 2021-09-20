@@ -19,95 +19,56 @@ namespace CsvHelper.Excel
     /// Parses an Excel file.
     /// </summary>
     public class ExcelParser : IParser
+#if !NET45 && !NET47 && !NETSTANDARD2_0
+        , IAsyncDisposable
+#endif
     {
-        /// <summary>
-        /// Creates a new parser using a new <see cref="ExcelPackage"/> from the given <paramref name="stream"/> and uses the given <paramref name="configuration"/>.
-        /// </summary>
-        /// <param name="stream">The stream of the package.</param>
-        /// <param name="configuration">The configuration.</param>
-        public ExcelParser(Stream stream, CsvConfiguration configuration = null)
-            : this(new ExcelPackage(stream), configuration) {
-            _leaveOpen = false;
-        }
-
-
-        /// <summary>
-        /// Creates a new parser using a new <see cref="ExcelPackage"/> from the given <paramref name="stream"/> and uses the given <paramref name="configuration"/>.
-        /// </summary>
-        /// <param name="stream">The stream of the package.</param>
-        /// <param name="sheetName">The name of the sheet to import data from.</param>
-        /// <param name="configuration">The configuration.</param>
-        public ExcelParser(Stream stream, string sheetName, CsvConfiguration configuration = null)
-            : this(new ExcelPackage(stream), sheetName, configuration) {
-            _leaveOpen = false;
-        }
-
-
-        /// <summary>
-        /// Creates a new parser using a new <see cref="ExcelPackage"/> from the given <paramref name="path"/> and uses the given <paramref name="configuration"/>.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="configuration">The configuration.</param>
-        public ExcelParser(string path, CsvConfiguration configuration = null)
-            : this(new ExcelPackage(new FileInfo(path)), configuration) {
-            _leaveOpen = false;
-        }
-
-
         /// <summary>
         /// Creates a new parser using a new <see cref="ExcelPackage"/> from the given <paramref name="path"/> and uses the given <paramref name="configuration"/>.
         /// </summary>
         /// <param name="path">The path to the workbook.</param>
-        /// <param name="sheetName">The name of the sheet to import data from.</param>
+        /// <param name="sheetName">The name of the sheet to import from. If null then the first worksheet in the workbook is used.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(string path, string sheetName, CsvConfiguration configuration = null)
+        public ExcelParser(string path, string sheetName = null, CsvConfiguration configuration = null)
             : this(new ExcelPackage(new FileInfo(path)), sheetName, configuration) {
-            _leaveOpen = false;
+            _isPackageOwner = true;
+        }
+
+
+        /// <summary>
+        /// Creates a new parser using a new <see cref="ExcelPackage"/> from the given <paramref name="stream"/> and uses the given <paramref name="configuration"/>.
+        /// </summary>
+        /// <param name="stream">The stream of the package.</param>
+        /// <param name="sheetName">The name of the sheet to import from. If null then the first worksheet in the workbook is used.</param>
+        /// <param name="configuration">The configuration.</param>
+        public ExcelParser(Stream stream, string sheetName = null, CsvConfiguration configuration = null)
+            : this(new ExcelPackage(stream), sheetName, configuration) {
+            _isPackageOwner = true;
+            _stream = stream;
         }
 
 
         /// <summary>
         /// Creates a new parser using the given <see cref="ExcelPackage"/> and <see cref="Configuration"/>.
-        /// <remarks>
-        /// Will attempt to read the data from the first worksheet in the workbook.
-        /// </remarks>
         /// </summary>
         /// <param name="package">The <see cref="ExcelPackage"/> with the data.</param>
+        /// <param name="sheetName">The name of the sheet to import from. If null then the first worksheet in the workbook is used.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(ExcelPackage package, CsvConfiguration configuration = null)
-            : this(package.Workbook, configuration) { }
-
-
-        /// <summary>
-        /// Creates a new parser using the given <see cref="ExcelPackage"/> and <see cref="Configuration"/>.
-        /// </summary>
-        /// <param name="package">The <see cref="ExcelPackage"/> with the data.</param>
-        /// <param name="sheetName">The name of the sheet to import from.</param>
-        /// <param name="configuration">The configuration.</param>
-        public ExcelParser(ExcelPackage package, string sheetName, CsvConfiguration configuration = null)
+        public ExcelParser(ExcelPackage package, string sheetName = null, CsvConfiguration configuration = null)
             : this(package.Workbook, sheetName, configuration) { }
 
 
         /// <summary>
         /// Creates a new parser using the given <see cref="ExcelWorkbook"/> and <see cref="Configuration"/>.
-        /// <remarks>
-        /// Will attempt to read the data from the first worksheet in the workbook.
-        /// </remarks>
         /// </summary>
         /// <param name="workbook">The <see cref="ExcelWorkbook"/> with the data.</param>
+        /// <param name="sheetName">The name of the sheet to import from. If null then the first worksheet in the workbook is used.</param>
         /// <param name="configuration">The configuration.</param>
-        public ExcelParser(ExcelWorkbook workbook, CsvConfiguration configuration = null)
-            : this(workbook.Worksheets.First(), configuration) { }
-
-
-        /// <summary>
-        /// Creates a new parser using the given <see cref="ExcelWorkbook"/> and <see cref="Configuration"/>.
-        /// </summary>
-        /// <param name="workbook">The <see cref="ExcelWorkbook"/> with the data.</param>
-        /// <param name="sheetName">The name of the sheet to import from.</param>
-        /// <param name="configuration">The configuration.</param>
-        public ExcelParser(ExcelWorkbook workbook, string sheetName, CsvConfiguration configuration = null)
-            : this(workbook.Worksheets[sheetName], configuration) { }
+        public ExcelParser(ExcelWorkbook workbook, string sheetName = null, CsvConfiguration configuration = null)
+            : this(
+                sheetName != null ? workbook.Worksheets[sheetName] : workbook.Worksheets.First(),
+                configuration
+            ) { }
 
 
         /// <summary>
@@ -129,7 +90,7 @@ namespace CsvHelper.Excel
 
 
         private ExcelParser(ExcelRangeBase range, CsvConfiguration configuration) {
-            Configuration = configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture);
+            Configuration = configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture) { LeaveOpen = true };
             Context = new CsvContext(this);
             Workbook = range.Worksheet.Workbook;
 
@@ -140,8 +101,7 @@ namespace CsvHelper.Excel
             _columnCount = _range.Columns;
             _rowCount = _range.Rows;
 
-            //TODO: support Configuration.LeaveOpen
-            //_leaveOpen = Configuration.LeaveOpen;
+            _leaveOpen = Configuration.LeaveOpen;
         }
 
 
@@ -182,6 +142,42 @@ namespace CsvHelper.Excel
         /// <exception cref="ObjectDisposedException">Thrown if the parser has been disposed.</exception>
         public Task<bool> ReadAsync()
             => Task.FromResult(Read());
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private string[] GetRecord() {
+            var fromRow = _range.Start.Row + Row - 1;
+            var fromColumn = _range.Start.Column;
+
+            var toRow = fromRow;
+            var toColumn = _range.Start.Column + _columnCount;
+
+            var subRange = _range.Worksheet.Cells[fromRow, fromColumn, toRow, toColumn];
+            subRange.Calculate(DefaultExcelCalculationOption);
+
+            int expectedIndex = 0;
+            var values = new List<string>(Count);
+            foreach (var cell in subRange) {
+                int actualIndex = (cell.Start.Row - subRange.Start.Row) * Count + (cell.Start.Column - subRange.Start.Column);
+
+                //If the current cell is further ahead than expected then OpenOfficeXml has skipped 1 or more empty cells: insert nulls for those
+                AddEmptyValuesForSkippedCells(values, actualIndex - expectedIndex);
+
+                //Now we can add the value of the current cell
+                values.Add(cell.GetValue<string>());
+
+                expectedIndex = actualIndex + 1;
+            }
+
+            if (!values.Any()) {
+                return null;
+            }
+
+            //If the number of values is fewer than expected then OpenOfficeXml has skipped 1 or more empty trailing cells: append nulls for those
+            AddEmptyValuesForSkippedCells(values, Count - values.Count);
+
+            return values.ToArray();
+        }
 
 
         IParserConfiguration IParser.Configuration => Configuration;
@@ -227,52 +223,40 @@ namespace CsvHelper.Excel
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing) {
-            if (!_disposed) {
-                if (disposing) {
-                    if (!_leaveOpen) {
-                        Workbook.Dispose();
-                    }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) {
+                return;
+            }
+            if (disposing) {
+                if (!_leaveOpen || _isPackageOwner) {
+                    Workbook.Dispose();
                 }
-                _disposed = true;
+                if (!_leaveOpen) {
+                    _stream?.Dispose();
+                }
             }
+            _disposed = true;
         }
 
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private string[] GetRecord() {
-            var fromRow = _range.Start.Row + Row - 1;
-            var fromColumn = _range.Start.Column;
-
-            var toRow = fromRow;
-            var toColumn = _range.Start.Column + _columnCount;
-
-            var subRange = _range.Worksheet.Cells[fromRow, fromColumn, toRow, toColumn];
-            subRange.Calculate(DefaultExcelCalculationOption);
-
-            int expectedIndex = 0;
-            var values = new List<string>(Count);
-            foreach (var cell in subRange) {
-                int actualIndex = (cell.Start.Row - subRange.Start.Row) * Count + (cell.Start.Column - subRange.Start.Column);
-
-                //If the current cell is further ahead than expected then OpenOfficeXml has skipped 1 or more empty cells: insert nulls for those
-                AddEmptyValuesForSkippedCells(values, actualIndex - expectedIndex);
-
-                //Now we can add the value of the current cell
-                values.Add(cell.GetValue<string>());
-
-                expectedIndex = actualIndex + 1;
+#if !NET45 && !NET47 && !NETSTANDARD2_0
+        /// <inheritdoc/>
+        public async ValueTask DisposeAsync() {
+            if (_disposed) {
+                return;
             }
-
-            if (!values.Any()) {
-                return null;
+            if (!_leaveOpen || _isPackageOwner) {
+                Workbook.Dispose();
             }
-
-            //If the number of values is fewer than expected then OpenOfficeXml has skipped 1 or more empty trailing cells: append nulls for those
-            AddEmptyValuesForSkippedCells(values, Count - values.Count);
-
-            return values.ToArray();
+            if (!_leaveOpen) {
+                if (_stream != null) {
+                    await _stream.DisposeAsync().ConfigureAwait(false);
+                }
+            }
+            _disposed = true;
         }
+#endif
 
 
         private static void AddEmptyValuesForSkippedCells(List<string> list, int count) {
@@ -282,9 +266,11 @@ namespace CsvHelper.Excel
         }
 
 
+        private readonly bool _isPackageOwner;
         private readonly bool _leaveOpen;
+
         private readonly ExcelRangeBase _range;
-        //private readonly Stream _stream;
+        private readonly Stream _stream;
 
         private bool _disposed;
 
