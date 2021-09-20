@@ -197,7 +197,7 @@ namespace CsvHelper.Excel
         /// </summary>
         public int Row => _row;
 
-        public int RawRow => _rawRow;
+        public int RawRow => _rawRow + _range.Start.Row - 1;
 
         /// <summary>
         /// Gets the reading context
