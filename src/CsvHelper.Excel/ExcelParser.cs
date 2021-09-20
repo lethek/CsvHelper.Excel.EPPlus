@@ -209,6 +209,7 @@ namespace CsvHelper.Excel
         /// </summary>
         public CsvConfiguration Configuration { get; }
 
+        public string Delimiter { get; }
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
