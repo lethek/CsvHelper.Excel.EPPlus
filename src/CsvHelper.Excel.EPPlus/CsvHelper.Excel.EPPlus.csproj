@@ -19,7 +19,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="27.1.1" />
+    <PackageReference Include="CsvHelper" Version="28.0.1" />
     <PackageReference Include="EPPlus" Version="4.5.3.3" />
   </ItemGroup>
 </Project>
