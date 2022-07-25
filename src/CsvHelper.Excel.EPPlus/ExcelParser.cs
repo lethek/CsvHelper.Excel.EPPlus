@@ -19,7 +19,7 @@ namespace CsvHelper.Excel.EPPlus
     /// Parses an Excel file.
     /// </summary>
     public class ExcelParser : IParser
-#if !NET45 && !NET47 && !NETSTANDARD2_0
+#if NETSTANDARD2_1_OR_GREATER
         , IAsyncDisposable
 #endif
     {
@@ -241,7 +241,7 @@ namespace CsvHelper.Excel.EPPlus
         }
 
 
-#if !NET45 && !NET47 && !NETSTANDARD2_0
+#if NETSTANDARD2_1_OR_GREATER
         /// <inheritdoc/>
         public async ValueTask DisposeAsync() {
             if (_disposed) {

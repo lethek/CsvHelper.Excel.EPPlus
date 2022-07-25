@@ -206,7 +206,7 @@ namespace CsvHelper.Excel.EPPlus
         }
 
 
-#if !NET45 && !NET47 && !NETSTANDARD2_0
+#if NETSTANDARD2_1_OR_GREATER
         /// <inheritdoc/>
         protected override async ValueTask DisposeAsync(bool disposing) {
             if (_disposed) {
