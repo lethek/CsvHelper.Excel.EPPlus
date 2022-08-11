@@ -184,7 +184,7 @@ public class ExcelParser : IParser
 
     public string[] Record { get; private set; }
 
-    public string RawRecord => String.Join(Configuration.Delimiter, Record);
+    public string RawRecord => String.Join(Delimiter, Record);
 
     /// <summary>
     /// Gets the row of the Excel file that the parser is currently on.
@@ -203,7 +203,7 @@ public class ExcelParser : IParser
     /// </summary>
     public CsvConfiguration Configuration { get; }
 
-    public string Delimiter { get; }
+    public string Delimiter => Configuration.Delimiter;
 
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
