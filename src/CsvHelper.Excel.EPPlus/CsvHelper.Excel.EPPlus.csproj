@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Description>An implementation of IParser and IWriter from CsvHelper that reads and writes using the EPPlus library.</Description>
+    <Description>An implementation of IParser and IWriter from CsvHelper that reads and writes using the latest EPPlus library.</Description>
     <Authors>Michael Monsour, Chris Young, Chris Rodgers</Authors>
     <RootNamespace>CsvHelper.Excel.EPPlus</RootNamespace>
     <PackageId>CsvHelper.Excel.EPPlus</PackageId>
@@ -29,6 +29,6 @@
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="28.0.1" />
-    <PackageReference Include="EPPlus" Version="4.5.3.3" />
+    <PackageReference Include="EPPlus" Version="6.0.6" />
   </ItemGroup>
 </Project>
