@@ -7,8 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvHelper.Excel.EPPlus", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvHelper.Excel.EPPlus.Tests", "tests\CsvHelper.Excel.EPPlus.Tests\CsvHelper.Excel.EPPlus.Tests.csproj", "{DA9BBF1B-55BE-412C-8AC1-0A70300B8A90}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BD1711C4-B961-4CA1-B0C7-048465423B07}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "[Solution Items]", "[Solution Items]", "{BD1711C4-B961-4CA1-B0C7-048465423B07}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		azure-pipelines.yml = azure-pipelines.yml
 		Directory.Build.props = Directory.Build.props
 		LICENSE = LICENSE
