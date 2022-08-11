@@ -1,10 +1,9 @@
-﻿namespace CsvHelper.Excel.EPPlus.Tests.Parser
+﻿namespace CsvHelper.Excel.EPPlus.Tests.Parser;
+
+public class ParseUsingWorksheetSpec : ExcelParserTests
 {
-    public class ParseUsingWorksheetSpec : ExcelParserTests
-    {
-        public ParseUsingWorksheetSpec() : base("parse_by_worksheet.xlsx") {
-            using var parser = new ExcelParser(Worksheet);
-            Run(parser);
-        }
+    public ParseUsingWorksheetSpec() : base("parse_by_worksheet.xlsx") {
+        using var parser = new ExcelParser(Worksheet);
+        Run(parser);
     }
 }

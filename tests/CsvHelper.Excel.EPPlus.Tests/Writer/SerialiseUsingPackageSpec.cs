@@ -1,10 +1,9 @@
-﻿namespace CsvHelper.Excel.EPPlus.Tests.Writer
+﻿namespace CsvHelper.Excel.EPPlus.Tests.Writer;
+
+public class SerialiseUsingPackageSpec : ExcelWriterTests
 {
-    public class SerialiseUsingPackageSpec : ExcelWriterTests
-    {
-        public SerialiseUsingPackageSpec() : base("serialise_by_package.xlsx") {
-            using var excelWriter = new ExcelWriter(Package);
-            Run(excelWriter);
-        }
+    public SerialiseUsingPackageSpec() : base("serialise_by_package.xlsx") {
+        using var excelWriter = new ExcelWriter(Package);
+        Run(excelWriter);
     }
 }

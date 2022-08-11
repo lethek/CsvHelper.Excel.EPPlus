@@ -1,4 +1,4 @@
-﻿namespace CsvHelper.Excel.EPPlus.Tests
+﻿namespace CsvHelper.Excel.EPPlus.Tests.Common
 {
     public record Person
     {
