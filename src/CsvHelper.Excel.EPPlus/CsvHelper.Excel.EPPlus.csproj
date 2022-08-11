@@ -1,26 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>An implementation of IParser and IWriter from CsvHelper that reads and writes using the EPPlus library.</Description>
-    <AssemblyTitle>CsvHelper for Excel</AssemblyTitle>
-    <VersionPrefix>27.0.0</VersionPrefix>
-    <VersionSuffix>lethek</VersionSuffix>
-    <Authors>Michael Monsour, Chris Young, Chris Rodgers</Authors>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-    <DebugType>portable</DebugType>
-    <AssemblyName>CsvHelper.Excel.EPPlus</AssemblyName>
-    <OutputType>Library</OutputType>
-    <PackageId>CsvHelper.Excel.EPPlus</PackageId>
-    <PackageTags>CSV;CSVHelper;Excel;EPPlus</PackageTags>
-    <PackageProjectUrl>https://github.com/lethek/CsvHelper.Excel</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/lethek/CsvHelper.Excel</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Description>An implementation of IParser and IWriter from CsvHelper that reads and writes using the EPPlus library.</Description>
+    <Authors>Michael Monsour, Chris Young, Chris Rodgers</Authors>
+    <PackageId>CsvHelper.Excel.EPPlus4</PackageId>
+    <PackageTags>CSV CSVHelper Excel EPPlus</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/lethek/CsvHelper.Excel.EPPlus4</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lethek/CsvHelper.Excel.EPPlus4</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <LangVersion>latest</LangVersion>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
   
   <ItemGroup>
     <InternalsVisibleTo Include="CsvHelper.Excel.EPPlus.Tests" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
