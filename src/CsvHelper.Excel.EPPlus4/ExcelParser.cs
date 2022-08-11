@@ -158,7 +158,7 @@ public class ExcelParser : IParser
             AddEmptyValuesForSkippedCells(values, actualIndex - expectedIndex);
 
             //Now we can add the value of the current cell
-            values.Add(cell.GetValue<string>());
+            values.Add(ApplyTrimOptions(cell.GetValue<string>()));
 
             expectedIndex = actualIndex + 1;
         }
@@ -172,6 +172,10 @@ public class ExcelParser : IParser
 
         return values.ToArray();
     }
+
+
+    private string ApplyTrimOptions(string value)
+        => Configuration.TrimOptions.HasFlag(TrimOptions.Trim) ? value?.Trim() : value;
 
 
     IParserConfiguration IParser.Configuration => Configuration;
