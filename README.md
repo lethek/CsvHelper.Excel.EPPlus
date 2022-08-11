@@ -1,10 +1,10 @@
-[![Build Status](https://dev.azure.com/lethek0447/lethek/_apis/build/status/lethek.CsvHelper.Excel)](https://dev.azure.com/lethek0447/lethek/_build/latest?definitionId=2)
+[![Build Status](https://github.com/lethek/CsvHelper.Excel.EPPlus4/actions/workflows/dotnet.yml/badge.svg)](https://github.com/lethek/CsvHelper.Excel.EPPlus4/actions/workflows/dotnet.yml)
 
 # CSV Helper for Excel
 
 ***This project has been forked from https://github.com/christophano/CsvHelper.Excel and https://github.com/youngcm2/CsvHelper.Excel and heavily modified; primarily so that it can be used with the final LGPL version of [EPPlus](https://github.com/JanKallman/EPPlus) instead of ClosedXml, because it works with encrypted/password-protected Excel documents.***
 
-***NuGet packages of this fork are available from MyGet:  https://www.myget.org/feed/lethek/package/nuget/CsvHelper.Excel***
+***NuGet packages of this fork are available from MyGet:  https://www.myget.org/feed/lethek/package/nuget/CsvHelper.Excel.EPPlus4***
 
 CsvHelper for Excel is an extension that links two excellent libraries, [CsvHelper](https://joshclose.github.io/CsvHelper/) and [EPPlus](https://github.com/JanKallman/EPPlus).
 It provides implementations of `IParser` and `IWriter` from [CsvHelper](https://joshclose.github.io/CsvHelper/) that read and write to Excel using [EPPlus](https://github.com/JanKallman/EPPlus).
