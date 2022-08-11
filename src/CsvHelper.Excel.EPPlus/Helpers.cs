@@ -4,8 +4,6 @@ using System.Runtime.CompilerServices;
 using OfficeOpenXml;
 
 
-[assembly: InternalsVisibleTo("CsvHelper.Excel.EPPlus.Tests")]
-
 namespace CsvHelper.Excel.EPPlus
 {
     internal static class Helpers
