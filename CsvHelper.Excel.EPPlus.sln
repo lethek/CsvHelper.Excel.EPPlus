@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31612.314
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvHelper.Excel.EPPlus", "src\CsvHelper.Excel.EPPlus\CsvHelper.Excel.EPPlus.csproj", "{72E37422-03CE-4071-ACEA-5DFEF1DB86D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvHelper.Excel.EPPlus4", "src\CsvHelper.Excel.EPPlus4\CsvHelper.Excel.EPPlus4.csproj", "{72E37422-03CE-4071-ACEA-5DFEF1DB86D8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvHelper.Excel.EPPlus.Tests", "tests\CsvHelper.Excel.EPPlus.Tests\CsvHelper.Excel.EPPlus.Tests.csproj", "{DA9BBF1B-55BE-412C-8AC1-0A70300B8A90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvHelper.Excel.EPPlus4.Tests", "tests\CsvHelper.Excel.EPPlus4.Tests\CsvHelper.Excel.EPPlus4.Tests.csproj", "{DA9BBF1B-55BE-412C-8AC1-0A70300B8A90}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "[Solution Items]", "[Solution Items]", "{BD1711C4-B961-4CA1-B0C7-048465423B07}"
 	ProjectSection(SolutionItems) = preProject
@@ -19,6 +19,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9BC9FD74-E4B6-480A-AF59-8B163FB316D9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E469E1C8-35EB-46DD-89EB-E085D2A9F8BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsvHelper.Excel.EPPlus", "src\CsvHelper.Excel.EPPlus\CsvHelper.Excel.EPPlus.csproj", "{88001E0C-F16B-4CD3-AE05-CB81B66D84FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsvHelper.Excel.EPPlus.Tests", "tests\CsvHelper.Excel.EPPlus.Tests\CsvHelper.Excel.EPPlus.Tests.csproj", "{C55A63A0-D641-452D-98F5-8F524402374F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +38,14 @@ Global
 		{DA9BBF1B-55BE-412C-8AC1-0A70300B8A90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA9BBF1B-55BE-412C-8AC1-0A70300B8A90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA9BBF1B-55BE-412C-8AC1-0A70300B8A90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88001E0C-F16B-4CD3-AE05-CB81B66D84FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88001E0C-F16B-4CD3-AE05-CB81B66D84FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88001E0C-F16B-4CD3-AE05-CB81B66D84FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88001E0C-F16B-4CD3-AE05-CB81B66D84FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C55A63A0-D641-452D-98F5-8F524402374F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C55A63A0-D641-452D-98F5-8F524402374F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C55A63A0-D641-452D-98F5-8F524402374F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C55A63A0-D641-452D-98F5-8F524402374F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,6 +53,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{72E37422-03CE-4071-ACEA-5DFEF1DB86D8} = {9BC9FD74-E4B6-480A-AF59-8B163FB316D9}
 		{DA9BBF1B-55BE-412C-8AC1-0A70300B8A90} = {E469E1C8-35EB-46DD-89EB-E085D2A9F8BF}
+		{88001E0C-F16B-4CD3-AE05-CB81B66D84FF} = {9BC9FD74-E4B6-480A-AF59-8B163FB316D9}
+		{C55A63A0-D641-452D-98F5-8F524402374F} = {E469E1C8-35EB-46DD-89EB-E085D2A9F8BF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1910AC2B-C3B6-4D8F-811B-D9BB85E9C8B1}

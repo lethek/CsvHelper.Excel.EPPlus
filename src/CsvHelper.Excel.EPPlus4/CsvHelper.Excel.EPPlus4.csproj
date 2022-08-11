@@ -2,10 +2,10 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Description>An implementation of IParser and IWriter from CsvHelper that reads and writes using the EPPlus library.</Description>
+    <Description>An implementation of IParser and IWriter from CsvHelper that reads and writes using the EPPlus v4 library (the last LGPL version).</Description>
     <Authors>Michael Monsour, Chris Young, Chris Rodgers</Authors>
     <RootNamespace>CsvHelper.Excel.EPPlus</RootNamespace>
-    <PackageId>CsvHelper.Excel.EPPlus</PackageId>
+    <PackageId>CsvHelper.Excel.EPPlus4</PackageId>
     <PackageTags>CSV CSVHelper Excel EPPlus</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -15,11 +15,11 @@
     <LangVersion>latest</LangVersion>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <InternalsVisibleTo Include="CsvHelper.Excel.EPPlus.Tests" />
+    <InternalsVisibleTo Include="CsvHelper.Excel.EPPlus4.Tests" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
