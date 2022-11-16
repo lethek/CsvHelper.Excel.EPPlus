@@ -1,12 +1,11 @@
 # CSV Helper for Excel (using EPPlus)
 
-[![GitHub license](https://img.shields.io/github/license/lethek/CsvHelper.Excel.EPPlus)](https://github.com/lethek/CsvHelper.Excel.EPPlus/blob/main/LICENSE)
-[![NuGet Stats (v6)](https://img.shields.io/nuget/v/CsvHelper.Excel.EPPlus.svg)](https://www.nuget.org/packages/CsvHelper.Excel.EPPlus)
-[![NuGet Stats (v4)](https://img.shields.io/nuget/v/CsvHelper.Excel.EPPlus4.svg)](https://www.nuget.org/packages/CsvHelper.Excel.EPPlus4)
+[![License](https://img.shields.io/github/license/lethek/CsvHelper.Excel.EPPlus?label=License)](https://github.com/lethek/CsvHelper.Excel.EPPlus/blob/master/LICENSE)
 [![Build & Publish](https://github.com/lethek/CsvHelper.Excel.EPPlus/actions/workflows/dotnet.yml/badge.svg)](https://github.com/lethek/CsvHelper.Excel.EPPlus/actions/workflows/dotnet.yml)
+[![NuGet](https://img.shields.io/nuget/v/CsvHelper.Excel.EPPlus?label=NuGet%20%28EPPlus6%29)](https://www.nuget.org/packages/CsvHelper.Excel.EPPlus)
+[![NuGet](https://img.shields.io/nuget/v/CsvHelper.Excel.EPPlus?label=NuGet%20%28EPPlus4%29)](https://www.nuget.org/packages/CsvHelper.Excel.EPPlus4)
 
-
-***This project has been forked from https://github.com/christophano/CsvHelper.Excel and https://github.com/youngcm2/CsvHelper.Excel and heavily modified; primarily so that it can be used with [EPPlus](https://www.nuget.org/packages/EPPlus) instead of ClosedXml, because EPPlus supports encrypted/password-protected Excel documents.***
+***This project was originally forked from https://github.com/christophano/CsvHelper.Excel and https://github.com/youngcm2/CsvHelper.Excel and heavily modified so that it could be used with [EPPlus](https://www.nuget.org/packages/EPPlus) instead of ClosedXml. EPPlus provides additional features such as support for encrypted/password-protected Excel documents.***
 
 CsvHelper for Excel is an extension that links two excellent libraries: [CsvHelper](https://joshclose.github.io/CsvHelper/) and [EPPlus](https://www.epplussoftware.com/).
 It provides implementations of `IParser` and `IWriter` from [CsvHelper](https://joshclose.github.io/CsvHelper/) that read and write to Excel using [EPPlus](https://www.epplussoftware.com/).
@@ -15,13 +14,13 @@ If you need to parse or write to a password-protected Excel document you will ne
 
 &nbsp;
 
-## Setup
-
 ---
 
-You have a choice of two packages, possibly depending on your licensing requirements:
-* ***[CsvHelper.Excel.EPPlus](https://www.nuget.org/packages/CsvHelper.Excel.EPPlus)*** depends on [EPPlus 6](https://github.com/EPPlusSoftware/EPPlus). This version of EPPlus has a **Polyform Noncommercial license** or requires you to obtain a commercial license from EPPlus Software: https://www.epplussoftware.com/LicenseOverview
-* ***[CsvHelper.Excel.EPPlus4](https://www.nuget.org/packages/CsvHelper.Excel.EPPlus4)*** depends on [EPPlus 4](https://github.com/JanKallman/EPPlus). This version of EPPlus is **LGPL** licensed. Consider this version if the other one is not available for your use.
+## Setup
+
+You have a choice of two packages. It'll probably come down to your licensing requirements:
+* ***[CsvHelper.Excel.EPPlus](https://www.nuget.org/packages/CsvHelper.Excel.EPPlus)*** depends on [EPPlus 6](https://github.com/EPPlusSoftware/EPPlus). This version of EPPlus has a **[Polyform Noncommercial license](https://spdx.org/licenses/PolyForm-Noncommercial-1.0.0.html)** *OR* requires you to obtain a commercial license from EPPlus Software: https://www.epplussoftware.com/LicenseOverview
+* ***[CsvHelper.Excel.EPPlus4](https://www.nuget.org/packages/CsvHelper.Excel.EPPlus4)*** depends on [EPPlus 4](https://github.com/JanKallman/EPPlus). This version of EPPlus is **[LGPL](https://spdx.org/licenses/LGPL-3.0-only.html)** licensed. Consider this version if the other one is not available for your use.
 
 Install the appropriate package from [NuGet.org](https://www.nuget.org/packages?q=CsvHelper.Excel.EPPlus) into your project. E.g.:
 
@@ -37,9 +36,9 @@ PM> Install-Package CsvHelper.Excel.EPPlus
 
 &nbsp;
 
-## Using ExcelParser
-
 ---
+
+## Using ExcelParser
 
 `ExcelParser` implements `IParser` and allows you to specify the path of an Excel package, pass an instance of `ExcelPackage`, `ExcelWorkbook`, `ExcelWorksheet`, `ExcelRange` or a `Stream` that you have already loaded to use as the data source.
 
@@ -194,9 +193,9 @@ var people = reader.GetRecords<Person>();
 
 &nbsp;
 
-## Using ExcelWriter
-
 ---
+
+## Using ExcelWriter
 
 `ExcelWriter` implements `IWriter` and, like `ExcelParser`, allows you to specify the path to (eventually) save the workbook, pass an instance of `ExcelPackage` that you have already created, or pass a specific instance of `ExcelWorksheet`, `ExcelRange` or `Stream` to use as the destination.
 

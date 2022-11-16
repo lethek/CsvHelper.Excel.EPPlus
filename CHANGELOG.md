@@ -25,6 +25,10 @@ The listed Breaking Changes are those added by this library, above-and-beyond th
 * Pass `IWriterConfiguration` into `ExcelWriter` constructor instead of `CsvConfiguration`.
 * Pass `IParserConfiguration` into `ExcelParser` constructor instead of `CsvConfiguration`.
 
+### Bug Fixes
+
+* Fixed `ExcelParser` not disposing `ExcelPackage` when it was documented to.
+
 ---
 
 ## 29.0.0
