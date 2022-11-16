@@ -23,8 +23,8 @@ public class ExcelParser : IParser
     /// <param name="path">The path to the workbook.</param>
     /// <param name="sheetName">The name of the sheet to import from. If null then the first worksheet in the workbook is used.</param>
     /// <param name="configuration">The configuration.</param>
-    public ExcelParser(string path, string sheetName = null, CsvConfiguration configuration = null)
-        : this(new ExcelPackage(new FileInfo(path)), sheetName, configuration) {
+    public ExcelParser(string path, string sheetName = null, IParserConfiguration configuration = null)
+        : this(new ExcelPackage(new FileInfo(path)), sheetName, configuration, false) {
         _isPackageOwner = true;
     }
 
@@ -35,8 +35,8 @@ public class ExcelParser : IParser
     /// <param name="stream">The stream of the package.</param>
     /// <param name="sheetName">The name of the sheet to import from. If null then the first worksheet in the workbook is used.</param>
     /// <param name="configuration">The configuration.</param>
-    public ExcelParser(Stream stream, string sheetName = null, CsvConfiguration configuration = null)
-        : this(new ExcelPackage(stream), sheetName, configuration) {
+    public ExcelParser(Stream stream, string sheetName = null, IParserConfiguration configuration = null, bool leaveOpen = false)
+        : this(new ExcelPackage(stream), sheetName, configuration, leaveOpen) {
         _isPackageOwner = true;
         _stream = stream;
     }
@@ -48,8 +48,8 @@ public class ExcelParser : IParser
     /// <param name="package">The <see cref="ExcelPackage"/> with the data.</param>
     /// <param name="sheetName">The name of the sheet to import from. If null then the first worksheet in the workbook is used.</param>
     /// <param name="configuration">The configuration.</param>
-    public ExcelParser(ExcelPackage package, string sheetName = null, CsvConfiguration configuration = null)
-        : this(package.Workbook, sheetName, configuration) { }
+    public ExcelParser(ExcelPackage package, string sheetName = null, IParserConfiguration configuration = null, bool leaveOpen = false)
+        : this(package.Workbook, sheetName, configuration, leaveOpen) { }
 
 
     /// <summary>
@@ -58,10 +58,11 @@ public class ExcelParser : IParser
     /// <param name="workbook">The <see cref="ExcelWorkbook"/> with the data.</param>
     /// <param name="sheetName">The name of the sheet to import from. If null then the first worksheet in the workbook is used.</param>
     /// <param name="configuration">The configuration.</param>
-    public ExcelParser(ExcelWorkbook workbook, string sheetName = null, CsvConfiguration configuration = null)
+    public ExcelParser(ExcelWorkbook workbook, string sheetName = null, IParserConfiguration configuration = null, bool leaveOpen = false)
         : this(
             sheetName != null ? workbook.Worksheets[sheetName] : workbook.Worksheets.First(),
-            configuration
+            configuration,
+            leaveOpen
         ) { }
 
 
@@ -70,8 +71,8 @@ public class ExcelParser : IParser
     /// </summary>
     /// <param name="worksheet">The <see cref="ExcelWorksheet"/> with the data.</param>
     /// <param name="configuration">The configuration.</param>
-    public ExcelParser(ExcelWorksheet worksheet, CsvConfiguration configuration = null)
-        : this((ExcelRangeBase)worksheet.Cells, configuration) { }
+    public ExcelParser(ExcelWorksheet worksheet, IParserConfiguration configuration = null, bool leaveOpen = false)
+        : this((ExcelRangeBase)worksheet.Cells, configuration, leaveOpen) { }
 
 
     /// <summary>
@@ -79,12 +80,12 @@ public class ExcelParser : IParser
     /// </summary>
     /// <param name="range">The <see cref="ExcelRange"/> with the data.</param>
     /// <param name="configuration">The configuration.</param>
-    public ExcelParser(ExcelRange range, CsvConfiguration configuration = null)
-        : this((ExcelRangeBase)range, configuration) { }
+    public ExcelParser(ExcelRange range, IParserConfiguration configuration = null, bool leaveOpen = false)
+        : this((ExcelRangeBase)range, configuration, leaveOpen) { }
 
 
-    private ExcelParser(ExcelRangeBase range, CsvConfiguration configuration) {
-        Configuration = configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture) { LeaveOpen = true };
+    private ExcelParser(ExcelRangeBase range, IParserConfiguration configuration, bool leaveOpen) {
+        Configuration = configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture);
         Context = new CsvContext(this);
         Workbook = range.Worksheet.Workbook;
 
@@ -95,7 +96,7 @@ public class ExcelParser : IParser
         _columnCount = _range.Columns;
         _rowCount = _range.Rows;
 
-        _leaveOpen = Configuration.LeaveOpen;
+        _leaveOpen = leaveOpen;
     }
 
 
@@ -178,8 +179,6 @@ public class ExcelParser : IParser
         => Configuration.TrimOptions.HasFlag(TrimOptions.Trim) ? value?.Trim() : value;
 
 
-    IParserConfiguration IParser.Configuration => Configuration;
-
     public long ByteCount => -1;
     public long CharCount => -1;
     public int Count => _columnCount;
@@ -205,7 +204,7 @@ public class ExcelParser : IParser
     /// <summary>
     /// Gets the configuration.
     /// </summary>
-    public CsvConfiguration Configuration { get; }
+    public IParserConfiguration Configuration { get; }
 
     public string Delimiter => Configuration.Delimiter;
 

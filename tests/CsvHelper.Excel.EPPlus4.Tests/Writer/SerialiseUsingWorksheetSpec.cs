@@ -3,7 +3,7 @@
 public class SerialiseUsingWorksheetSpec : ExcelWriterTests
 {
     public SerialiseUsingWorksheetSpec() : base("serialise_by_worksheet.xlsx", "a_different_sheetname") {
-        using var excelWriter = new ExcelWriter(Package, Worksheet);
+        using var excelWriter = new ExcelWriter(Package, Worksheet, leaveOpen: true);
         Run(excelWriter);
     }
 }

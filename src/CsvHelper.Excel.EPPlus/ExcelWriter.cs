@@ -40,8 +40,9 @@ public class ExcelWriter : CsvWriter
     /// </summary>
     /// <param name="path">The path to which to save the package.</param>
     /// <param name="sheetName">The name of the sheet to which to save.</param>
-    public ExcelWriter(string path, string sheetName = "Export", CsvConfiguration configuration = null)
-        : this(new ExcelPackage(new FileInfo(path)), sheetName, configuration) {
+    /// <param name="configuration">The configuration.</param>
+    public ExcelWriter(string path, string sheetName = "Export", IWriterConfiguration configuration = null)
+        : this(new ExcelPackage(new FileInfo(path)), sheetName, configuration, false) {
         _isPackageOwner = true;
     }
 
@@ -54,8 +55,9 @@ public class ExcelWriter : CsvWriter
     /// </summary>
     /// <param name="stream">The stream to which to save the package.</param>
     /// <param name="sheetName">The name of the sheet to which to save</param>
-    public ExcelWriter(Stream stream, string sheetName = "Export", CsvConfiguration configuration = null)
-        : this(new ExcelPackage(), sheetName, configuration) {
+    /// <param name="configuration">The configuration.</param>
+    public ExcelWriter(Stream stream, string sheetName = "Export", IWriterConfiguration configuration = null, bool leaveOpen = false)
+        : this(new ExcelPackage(), sheetName, configuration, leaveOpen) {
         _stream = stream;
         _isPackageOwner = true;
     }
@@ -72,8 +74,8 @@ public class ExcelWriter : CsvWriter
     /// <param name="package">The package to write the data to.</param>
     /// <param name="sheetName">The name of the sheet to write to.</param>
     /// <param name="configuration">The configuration.</param>
-    public ExcelWriter(ExcelPackage package, string sheetName = "Export", CsvConfiguration configuration = null)
-        : this(package, package.GetOrAddWorksheet(sheetName), configuration) { }
+    public ExcelWriter(ExcelPackage package, string sheetName = "Export", IWriterConfiguration configuration = null, bool leaveOpen = false)
+        : this(package, package.GetOrAddWorksheet(sheetName), configuration, leaveOpen) { }
 
 
     /// <summary>
@@ -86,8 +88,8 @@ public class ExcelWriter : CsvWriter
     /// <param name="package">The package to write the data to.</param>
     /// <param name="worksheet">The worksheet to write the data to.</param>
     /// <param name="configuration">The configuration</param>
-    public ExcelWriter(ExcelPackage package, ExcelWorksheet worksheet, CsvConfiguration configuration = null)
-        : this(package, worksheet.Cells, configuration) { }
+    public ExcelWriter(ExcelPackage package, ExcelWorksheet worksheet, IWriterConfiguration configuration = null, bool leaveOpen = false)
+        : this(package, worksheet.Cells, configuration, leaveOpen) { }
 
 
     /// <summary>
@@ -96,18 +98,18 @@ public class ExcelWriter : CsvWriter
     /// <param name="package">The package to write the data to.</param>
     /// <param name="range">The range to write the data to.</param>
     /// <param name="configuration">The configuration</param>
-    public ExcelWriter(ExcelPackage package, ExcelRange range, CsvConfiguration configuration = null)
-        : this(package, (ExcelRangeBase)range, configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture) { LeaveOpen = true }) { }
+    public ExcelWriter(ExcelPackage package, ExcelRange range, IWriterConfiguration configuration = null, bool leaveOpen = false)
+        : this(package, (ExcelRangeBase)range, configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture), leaveOpen) { }
 
 
-    private ExcelWriter(ExcelPackage package, ExcelRangeBase range, CsvConfiguration configuration)
-        : base(TextWriter.Null, configuration) {
+    private ExcelWriter(ExcelPackage package, ExcelRangeBase range, IWriterConfiguration configuration, bool leaveOpen = false)
+        : base(TextWriter.Null, configuration, leaveOpen) {
         configuration.Validate();
 
         Package = package;
         _range = range;
 
-        _leaveOpen = configuration.LeaveOpen;
+        _leaveOpen = leaveOpen;
         _sanitizeForInjection = configuration.InjectionOptions != InjectionOptions.None;
     }
 

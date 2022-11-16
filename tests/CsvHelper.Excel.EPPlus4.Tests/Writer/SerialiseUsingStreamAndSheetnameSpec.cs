@@ -7,7 +7,7 @@ public class SerialiseUsingStreamAndSheetnameSpec : ExcelWriterTests
 {
     public SerialiseUsingStreamAndSheetnameSpec() : base("serialise_by_workbook_and_sheetname.xlsx", "a_different_sheet_name") {
         _stream = new MemoryStream();
-        using var excelWriter = new ExcelWriter(_stream, WorksheetName);
+        using var excelWriter = new ExcelWriter(_stream, WorksheetName, leaveOpen: true);
         Run(excelWriter);
     }
 
