@@ -108,7 +108,7 @@ public class ExcelWriter : CsvWriter
         _range = range;
 
         _leaveOpen = configuration.LeaveOpen;
-        _sanitizeForInjection = configuration.SanitizeForInjection;
+        _sanitizeForInjection = configuration.InjectionOptions != InjectionOptions.None;
     }
 
 
