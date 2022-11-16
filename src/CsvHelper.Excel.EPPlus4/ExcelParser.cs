@@ -18,6 +18,15 @@ public class ExcelParser : IParser
 #endif
 {
     /// <summary>
+    /// Gets the workbook from which we are reading data.
+    /// </summary>
+    /// <value>
+    /// The workbook.
+    /// </value>
+    public ExcelWorkbook Workbook { get; }
+
+
+    /// <summary>
     /// Creates a new parser using a new <see cref="ExcelPackage"/> from the given <paramref name="path"/> and uses the given <paramref name="configuration"/>.
     /// </summary>
     /// <param name="path">The path to the workbook.</param>
@@ -48,8 +57,12 @@ public class ExcelParser : IParser
     /// <param name="package">The <see cref="ExcelPackage"/> with the data.</param>
     /// <param name="sheetName">The name of the sheet to import from. If null then the first worksheet in the workbook is used.</param>
     /// <param name="configuration">The configuration.</param>
-    public ExcelParser(ExcelPackage package, string sheetName = null, IParserConfiguration configuration = null, bool leaveOpen = false)
-        : this(package.Workbook, sheetName, configuration, leaveOpen) { }
+    public ExcelParser(ExcelPackage package, string sheetName = null, IParserConfiguration configuration = null,
+        bool leaveOpen = false)
+        : this(package.Workbook, sheetName, configuration, leaveOpen)
+    {
+        _package = package;
+    }
 
 
     /// <summary>
@@ -98,15 +111,6 @@ public class ExcelParser : IParser
 
         _leaveOpen = leaveOpen;
     }
-
-
-    /// <summary>
-    /// Gets the workbook from which we are reading data.
-    /// </summary>
-    /// <value>
-    /// The workbook.
-    /// </value>
-    public ExcelWorkbook Workbook { get; }
 
 
     /// <summary>
@@ -229,6 +233,7 @@ public class ExcelParser : IParser
         if (disposing) {
             if (!_leaveOpen || _isPackageOwner) {
                 Workbook.Dispose();
+                _package?.Dispose();
             }
             if (!_leaveOpen) {
                 _stream?.Dispose();
@@ -246,6 +251,7 @@ public class ExcelParser : IParser
             }
             if (!_leaveOpen || _isPackageOwner) {
                 Workbook.Dispose();
+                _package?.Dispose();
             }
             if (!_leaveOpen) {
                 if (_stream != null) {
@@ -267,6 +273,7 @@ public class ExcelParser : IParser
     private readonly bool _isPackageOwner;
     private readonly bool _leaveOpen;
 
+    private readonly ExcelPackage _package;
     private readonly ExcelRangeBase _range;
     private readonly Stream _stream;
 
