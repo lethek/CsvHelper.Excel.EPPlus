@@ -1,16 +1,15 @@
-# CSV Helper for Excel (using EPPlus)
+# CsvHelper for Excel (using EPPlus)
 
 [![License](https://img.shields.io/github/license/lethek/CsvHelper.Excel.EPPlus?label=License)](https://github.com/lethek/CsvHelper.Excel.EPPlus/blob/master/LICENSE)
 [![Build & Publish](https://github.com/lethek/CsvHelper.Excel.EPPlus/actions/workflows/dotnet.yml/badge.svg)](https://github.com/lethek/CsvHelper.Excel.EPPlus/actions/workflows/dotnet.yml)
 [![NuGet](https://img.shields.io/nuget/v/CsvHelper.Excel.EPPlus?label=NuGet%20%28EPPlus6%29)](https://www.nuget.org/packages/CsvHelper.Excel.EPPlus)
 [![NuGet](https://img.shields.io/nuget/v/CsvHelper.Excel.EPPlus?label=NuGet%20%28EPPlus4%29)](https://www.nuget.org/packages/CsvHelper.Excel.EPPlus4)
 
-***This project was originally forked from https://github.com/christophano/CsvHelper.Excel and https://github.com/youngcm2/CsvHelper.Excel and heavily modified so that it could be used with [EPPlus](https://www.nuget.org/packages/EPPlus) instead of ClosedXml. EPPlus provides additional features such as support for encrypted/password-protected Excel documents.***
+## Overview
 
-CsvHelper for Excel is an extension that links two excellent libraries: [CsvHelper](https://joshclose.github.io/CsvHelper/) and [EPPlus](https://www.epplussoftware.com/).
-It provides implementations of `IParser` and `IWriter` from [CsvHelper](https://joshclose.github.io/CsvHelper/) that read and write to Excel using [EPPlus](https://www.epplussoftware.com/).
+*CsvHelper for Excel (using EPPlus)* is an extension that links two excellent libraries: [CsvHelper](https://joshclose.github.io/CsvHelper/) and [EPPlus](https://www.epplussoftware.com/).
 
-If you need to parse or write to a password-protected Excel document you will need to create an instance of `ExcelPackage` yourself (e.g. `new ExcelPackage("file.xlsx", password)`) and use one of the constructor overloads described below which take that as a parameter.
+It provides implementations of `IParser` and `IWriter` from [CsvHelper](https://joshclose.github.io/CsvHelper/) that read and write Excel documents using [EPPlus](https://www.epplussoftware.com/). Encrypted/password-protected Excel documents are supported.
 
 &nbsp;
 
@@ -34,6 +33,10 @@ Or using the Package Manager Console with the following command:
 PM> Install-Package CsvHelper.Excel.EPPlus
 ```
 
+Add the `CsvHelper.Excel.EPPlus` namespace to your code and check the examples below.
+
+If you need to parse or write to a password-protected Excel document you will need to first create an instance of `ExcelPackage` yourself (e.g. `new ExcelPackage("file.xlsx", password)`) and then use one of the constructor overloads described below which take that as a parameter.
+
 &nbsp;
 
 ---
@@ -43,8 +46,6 @@ PM> Install-Package CsvHelper.Excel.EPPlus
 `ExcelParser` implements `IParser` and allows you to specify the path of an Excel package, pass an instance of `ExcelPackage`, `ExcelWorkbook`, `ExcelWorksheet`, `ExcelRange` or a `Stream` that you have already loaded to use as the data source.
 
 All constructor overloads have an optional parameter for passing your own `CsvConfiguration` (`IParserConfiguration`), otherwise a default constructed using the InvariantCulture is used.
-
-Explaining each of the constructors:
 
 &nbsp;
 
@@ -315,3 +316,11 @@ var worksheet = package.Workbook.Worksheets.Add("Folk");
 using var writer = new CsvWriter(new ExcelWriter(package, worksheet.Cells[2, 5, 400, 33]));
 writer.WriteRecords(people);
 ```
+
+&nbsp;
+
+---
+
+## Attribution
+
+***This project was originally forked from https://github.com/christophano/CsvHelper.Excel and https://github.com/youngcm2/CsvHelper.Excel and heavily modified so that it could be used with [EPPlus](https://www.nuget.org/packages/EPPlus) instead of ClosedXml.***
