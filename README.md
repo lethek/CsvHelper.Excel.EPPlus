@@ -200,6 +200,8 @@ var people = reader.GetRecords<Person>();
 
 `ExcelWriter` implements `IWriter` and, like `ExcelParser`, allows you to specify the path to (eventually) save the workbook, pass an instance of `ExcelPackage` that you have already created, or pass a specific instance of `ExcelWorksheet`, `ExcelRange` or `Stream` to use as the destination.
 
+Unlike `ExcelParser` and `CsvReader` however where CsvReader wraps ExcelParser, here `ExcelWriter` inherits from `CsvWriter` and should be used directly instead.
+
 All constructor overloads have an optional parameter for passing your own `CsvConfiguration` (`IWriterConfiguration`), otherwise a default constructed using the InvariantCulture is used.
 
 &nbsp;
@@ -211,7 +213,7 @@ Constructor: `ExcelWriter(string path, string sheetName = "Export", IWriterConfi
 When the path is passed to the constructor the writer manages the creation & disposal of the workbook and worksheet (named "Export" by default). The workbook is saved only when the writer is disposed.
 
 ```csharp
-using var writer = new CsvWriter(new ExcelWriter("path/to/file.xlsx"));
+using var writer = new ExcelWriter("path/to/file.xlsx");
 writer.WriteRecords(people);
 ```
 
@@ -226,9 +228,7 @@ Important: The data is saved only when the `ExcelWriter` is disposing.
 Unless you set `leaveOpen` to true, disposing `ExcelWriter` will also automatically dispose the provided `Stream`.
 
 ```csharp
-using var stream = new MemoryStream();
-using var excelWriter = new ExcelWriter(stream);
-using var writer = new CsvWriter(excelWriter);
+using var writer = new ExcelWriter(new MemoryStream());
 writer.WriteRecords(people);
 ```
 
@@ -245,8 +245,7 @@ By default, records are written into a worksheet named "Export".
 Unless you set `leaveOpen` to true, disposing `ExcelWriter` will also automatically dispose the provided `ExcelPackage`.
 
 ```csharp
-using var package = new ExcelPackage();
-using var writer = new CsvWriter(new ExcelWriter(package));
+using var writer = new ExcelWriter(new ExcelPackage());
 writer.WriteRecords(people);
 package.SaveAs("path/to/file.xlsx");
 ```
@@ -254,8 +253,7 @@ package.SaveAs("path/to/file.xlsx");
 Or
 
 ```csharp
-using var package = new ExcelPackage("path/to/file.xlsx");
-using var writer = new CsvWriter(new ExcelWriter(package));
+using var writer = new ExcelWriter(new ExcelPackage("path/to/file.xlsx"));
 writer.WriteRecords(people);
 ```
 
@@ -274,7 +272,7 @@ Unless you set `leaveOpen` to true, disposing `ExcelWriter` will also automatica
 ```csharp
 using var package = new ExcelPackage();
 var worksheet = package.Workbook.Worksheets.Add("Folk");
-using var writer = new CsvWriter(new ExcelWriter(package, worksheet));
+using var writer = new ExcelWriter(package, worksheet);
 writer.WriteRecords(people);
 package.SaveAs("path/to/file.xlsx");
 ```
@@ -284,7 +282,7 @@ Or
 ```csharp
 using var package = new ExcelPackage("path/to/file.xlsx");
 var worksheet = package.Workbook.Worksheets.Add("Folk");
-using var writer = new CsvWriter(new ExcelWriter(package, worksheet));
+using var writer = new ExcelWriter(package, worksheet);
 writer.WriteRecords(people);
 ```
 
@@ -303,7 +301,7 @@ Unless you set `leaveOpen` to true, disposing `ExcelWriter` will also automatica
 ```csharp
 using var package = new ExcelPackage();
 var worksheet = package.Workbook.Worksheets.Add("Folk");
-using var writer = new CsvWriter(new ExcelWriter(package, worksheet.Cells[2, 5, 400, 33]));
+using var writer = new ExcelWriter(package, worksheet.Cells[2, 5, 400, 33]);
 writer.WriteRecords(people);
 package.SaveAs("path/to/file.xlsx");
 ```
@@ -313,7 +311,7 @@ Or
 ```csharp
 using var package = new ExcelPackage("path/to/file.xlsx");
 var worksheet = package.Workbook.Worksheets.Add("Folk");
-using var writer = new CsvWriter(new ExcelWriter(package, worksheet.Cells[2, 5, 400, 33]));
+using var writer = new ExcelWriter(package, worksheet.Cells[2, 5, 400, 33]);
 writer.WriteRecords(people);
 ```
 
