@@ -56,6 +56,7 @@ public class ExcelWriter : CsvWriter
     /// <param name="stream">The stream to which to save the package.</param>
     /// <param name="sheetName">The name of the sheet to which to save</param>
     /// <param name="configuration">The configuration.</param>
+    /// <param name="leaveOpen">If set to <see langword="true"/>, disposing <see cref="ExcelWriter"/> does not also automatically dispose the <paramref name="stream"/>.</param>
     public ExcelWriter(Stream stream, string sheetName = "Export", IWriterConfiguration configuration = null, bool leaveOpen = false)
         : this(new ExcelPackage(), sheetName, configuration, leaveOpen) {
         _stream = stream;
@@ -74,6 +75,7 @@ public class ExcelWriter : CsvWriter
     /// <param name="package">The package to write the data to.</param>
     /// <param name="sheetName">The name of the sheet to write to.</param>
     /// <param name="configuration">The configuration.</param>
+    /// <param name="leaveOpen">If set to <see langword="true"/>, disposing <see cref="ExcelWriter"/> does not also automatically dispose the <paramref name="package"/>.</param>
     public ExcelWriter(ExcelPackage package, string sheetName = "Export", IWriterConfiguration configuration = null, bool leaveOpen = false)
         : this(package, package.GetOrAddWorksheet(sheetName), configuration, leaveOpen) { }
 
@@ -88,6 +90,7 @@ public class ExcelWriter : CsvWriter
     /// <param name="package">The package to write the data to.</param>
     /// <param name="worksheet">The worksheet to write the data to.</param>
     /// <param name="configuration">The configuration</param>
+    /// <param name="leaveOpen">If set to <see langword="true"/>, disposing <see cref="ExcelWriter"/> does not also automatically dispose the <paramref name="package"/>.</param>
     public ExcelWriter(ExcelPackage package, ExcelWorksheet worksheet, IWriterConfiguration configuration = null, bool leaveOpen = false)
         : this(package, worksheet.Cells, configuration, leaveOpen) { }
 
@@ -98,6 +101,7 @@ public class ExcelWriter : CsvWriter
     /// <param name="package">The package to write the data to.</param>
     /// <param name="range">The range to write the data to.</param>
     /// <param name="configuration">The configuration</param>
+    /// <param name="leaveOpen">If set to <see langword="true"/>, disposing <see cref="ExcelWriter"/> does not also automatically dispose the <paramref name="package"/>.</param>
     public ExcelWriter(ExcelPackage package, ExcelRange range, IWriterConfiguration configuration = null, bool leaveOpen = false)
         : this(package, (ExcelRangeBase)range, configuration ?? new CsvConfiguration(CultureInfo.InvariantCulture), leaveOpen) { }
 

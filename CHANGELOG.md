@@ -6,6 +6,14 @@ The listed Breaking Changes are those added by this library, above-and-beyond th
 
 ---
 
+## 30.0.1
+
+### Bug Fixes
+
+* Fixed incorrect documentation. There were no code changes in this version.
+
+---
+
 ## 30.0.0
 
 ### Breaking Changes

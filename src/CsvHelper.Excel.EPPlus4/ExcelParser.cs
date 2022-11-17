@@ -44,6 +44,7 @@ public class ExcelParser : IParser
     /// <param name="stream">The stream of the package.</param>
     /// <param name="sheetName">The name of the sheet to import from. If null then the first worksheet in the workbook is used.</param>
     /// <param name="configuration">The configuration.</param>
+    /// <param name="leaveOpen">If set to <see langword="true"/>, disposing <see cref="ExcelParser"/> does not also automatically dispose the <paramref name="stream"/>.</param>
     public ExcelParser(Stream stream, string sheetName = null, IParserConfiguration configuration = null, bool leaveOpen = false)
         : this(new ExcelPackage(stream), sheetName, configuration, leaveOpen) {
         _isPackageOwner = true;
@@ -57,6 +58,7 @@ public class ExcelParser : IParser
     /// <param name="package">The <see cref="ExcelPackage"/> with the data.</param>
     /// <param name="sheetName">The name of the sheet to import from. If null then the first worksheet in the workbook is used.</param>
     /// <param name="configuration">The configuration.</param>
+    /// <param name="leaveOpen">If set to <see langword="true"/>, disposing <see cref="ExcelParser"/> does not also automatically dispose the <paramref name="package"/>.</param>
     public ExcelParser(ExcelPackage package, string sheetName = null, IParserConfiguration configuration = null,
         bool leaveOpen = false)
         : this(package.Workbook, sheetName, configuration, leaveOpen)
@@ -71,6 +73,7 @@ public class ExcelParser : IParser
     /// <param name="workbook">The <see cref="ExcelWorkbook"/> with the data.</param>
     /// <param name="sheetName">The name of the sheet to import from. If null then the first worksheet in the workbook is used.</param>
     /// <param name="configuration">The configuration.</param>
+    /// <param name="leaveOpen">If set to <see langword="true"/>, disposing <see cref="ExcelParser"/> does not also automatically dispose the <paramref name="workbook"/>.</param>
     public ExcelParser(ExcelWorkbook workbook, string sheetName = null, IParserConfiguration configuration = null, bool leaveOpen = false)
         : this(
             sheetName != null ? workbook.Worksheets[sheetName] : workbook.Worksheets.First(),
@@ -84,6 +87,7 @@ public class ExcelParser : IParser
     /// </summary>
     /// <param name="worksheet">The <see cref="ExcelWorksheet"/> with the data.</param>
     /// <param name="configuration">The configuration.</param>
+    /// <param name="leaveOpen">If set to <see langword="true"/>, disposing <see cref="ExcelParser"/> does not also automatically dispose the <see cref="ExcelWorkbook"/> which owns <paramref name="worksheet"/>.</param>
     public ExcelParser(ExcelWorksheet worksheet, IParserConfiguration configuration = null, bool leaveOpen = false)
         : this((ExcelRangeBase)worksheet.Cells, configuration, leaveOpen) { }
 
@@ -93,6 +97,7 @@ public class ExcelParser : IParser
     /// </summary>
     /// <param name="range">The <see cref="ExcelRange"/> with the data.</param>
     /// <param name="configuration">The configuration.</param>
+    /// <param name="leaveOpen">If set to <see langword="true"/>, disposing <see cref="ExcelParser"/> does not also automatically dispose the <see cref="ExcelWorkbook"/> which owns <paramref name="range"/>.</param>
     public ExcelParser(ExcelRange range, IParserConfiguration configuration = null, bool leaveOpen = false)
         : this((ExcelRangeBase)range, configuration, leaveOpen) { }
 
