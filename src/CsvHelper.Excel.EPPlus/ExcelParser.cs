@@ -205,6 +205,19 @@ public class ExcelParser : IParser
 
     public int RawRow => _rawRow + _range.Start.Row - 1;
 
+    public int RowOffset
+    {
+        init
+        {
+            if (value <= 0)
+            {
+                return;
+            }
+
+            _row += value;
+        }
+    }
+
     /// <summary>
     /// Gets the reading context
     /// </summary>
