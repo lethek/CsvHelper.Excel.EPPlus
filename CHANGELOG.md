@@ -6,6 +6,15 @@ The listed Breaking Changes are those added by this library, above-and-beyond th
 
 ---
 
+## 30.1.0
+
+### Features
+
+* Added `RowOffset` and `ColumnOffset` properties to `ExcelParser`. Useful as a simple method of skipping leading rows/columns which have data in them that you do not want parsed.
+* Set the EPPlus license context within unit tests, allowing them to be debugged.
+
+---
+
 ## 30.0.1
 
 ### Bug Fixes
