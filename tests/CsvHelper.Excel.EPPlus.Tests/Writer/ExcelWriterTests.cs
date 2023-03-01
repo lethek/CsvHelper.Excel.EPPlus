@@ -11,7 +11,7 @@ public abstract class ExcelWriterTests : IDisposable
 {
     protected readonly Person[] Values = {
         new() { Id = null, Name = "Bill", Age = 20, Empty = "" },
-        new() { Id = null, Name = "Ben", Age = 20, Empty = "" },
+        new() { Id = 5, Name = "Ben", Age = 20, Empty = "" },
         new() { Id = null, Name = "Weed", Age = 30, Empty = "" }
     };
 
@@ -28,7 +28,10 @@ public abstract class ExcelWriterTests : IDisposable
     private ExcelWorksheet _worksheet;
 
 
-    protected ExcelWriterTests(string path, string worksheetName = "Export", int startRow = 1, int startColumn = 1) {
+    protected ExcelWriterTests(string path, string worksheetName = "Export", int startRow = 1, int startColumn = 1)
+    {
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
         Path = System.IO.Path.GetFullPath(System.IO.Path.Combine("data", Guid.NewGuid().ToString(), $"{path}.xlsx"));
 
         Dir = System.IO.Path.GetDirectoryName(Path);
@@ -50,7 +53,8 @@ public abstract class ExcelWriterTests : IDisposable
         => Package.GetOrAddWorksheet(WorksheetName);
 
 
-    protected void Run(ExcelWriter excelWriter) {
+    protected void Run(ExcelWriter excelWriter)
+    {
         excelWriter.Context.AutoMap<Person>();
         excelWriter.WriteRecords(Values);
     }
@@ -62,7 +66,8 @@ public abstract class ExcelWriterTests : IDisposable
 
 
     [Fact]
-    public void TheExcelWorkbookHeadersAreCorrect() {
+    public void TheExcelWorkbookHeadersAreCorrect()
+    {
         int column = StartColumn;
         nameof(Person.Id).Should().Be(Worksheet.GetValue(StartRow, column++).ToString());
         nameof(Person.Name).Should().Be(Worksheet.GetValue(StartRow, column++).ToString());
@@ -72,7 +77,8 @@ public abstract class ExcelWriterTests : IDisposable
 
 
     [Fact]
-    public void TheExcelWorkbookValuesAreCorrect() {
+    public void TheExcelWorkbookValuesAreCorrect()
+    {
         for (int i = 0; i < Values.Length; i++) {
             int column = StartColumn;
             Values[i].Id.Should().Be(Worksheet.GetValue<int?>(StartRow + i + 1, column++).As<int?>());
@@ -83,7 +89,8 @@ public abstract class ExcelWriterTests : IDisposable
     }
 
 
-    protected virtual void Dispose(bool disposing) {
+    protected virtual void Dispose(bool disposing)
+    {
         if (disposing) {
             _package?.Save();
             _package?.Dispose();
@@ -93,7 +100,8 @@ public abstract class ExcelWriterTests : IDisposable
     }
 
 
-    public void Dispose() {
+    public void Dispose()
+    {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
