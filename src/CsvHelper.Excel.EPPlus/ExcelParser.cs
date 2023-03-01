@@ -111,9 +111,6 @@ public class ExcelParser : IParser
             ? range.Worksheet.Cells[range.Worksheet.Dimension.Address]
             : range;
 
-        _columnCount = _range.Columns;
-        _rowCount = _range.Rows;
-
         _leaveOpen = leaveOpen;
     }
 
@@ -126,7 +123,7 @@ public class ExcelParser : IParser
     /// </returns>
     /// <exception cref="ObjectDisposedException">Thrown if the parser has been disposed.</exception>
     public bool Read() {
-        if (Row > _rowCount) {
+        if (Row > RowCount) {
             return false;
         }
 
@@ -148,13 +145,12 @@ public class ExcelParser : IParser
         => Task.FromResult(Read());
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private string[] GetRecord() {
-        var fromRow = _range.Start.Row + Row - 1;
-        var fromColumn = _range.Start.Column;
+        var fromRow = _range.Start.Row + RowOffset + Row - 1;
+        var fromColumn = _range.Start.Column + ColumnOffset;
 
         var toRow = fromRow;
-        var toColumn = _range.Start.Column + _columnCount;
+        var toColumn = fromColumn + ColumnCount;
 
         var subRange = _range.Worksheet.Cells[fromRow, fromColumn, toRow, toColumn];
         subRange.Calculate(DefaultExcelCalculationOption);
@@ -190,7 +186,7 @@ public class ExcelParser : IParser
 
     public long ByteCount => -1;
     public long CharCount => -1;
-    public int Count => _columnCount;
+    public int Count => ColumnCount;
 
     public string this[int index] => Record.ElementAtOrDefault(index);
 
@@ -205,19 +201,20 @@ public class ExcelParser : IParser
 
     public int RawRow => _rawRow + _range.Start.Row - 1;
 
-    public int RowOffset
-    {
-        init
-        {
-            if (value <= 0)
-            {
-                return;
-            }
+    /// <summary>
+    /// Gets and sets the number of rows to offset the start position from.
+    /// </summary>
+    public int RowOffset { get; set; } = 0;
 
-            _row += value;
-        }
-    }
+    /// <summary>
+    /// Gets and sets the number of columns to offset the start position from.
+    /// </summary>
+    public int ColumnOffset { get; set; } = 0;
 
+    public int RowCount => _range.Rows - RowOffset;
+
+    public int ColumnCount => _range.Columns - ColumnOffset;
+    
     /// <summary>
     /// Gets the reading context
     /// </summary>
@@ -299,8 +296,6 @@ public class ExcelParser : IParser
 
     private int _row = 1;
     private int _rawRow = 1;
-    private int _rowCount;
-    private int _columnCount;
 
     private static readonly ExcelCalculationOption DefaultExcelCalculationOption = new();
 }
