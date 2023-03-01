@@ -24,8 +24,7 @@ public abstract class ExcelParserTests : IDisposable
     protected ExcelPackage Package { get; }
     protected ExcelWorksheet Worksheet { get; }
 
-    protected ExcelParserTests(string path, string worksheetName = "Export", int startRow = 1, int startColumn = 1)
-    {
+    protected ExcelParserTests(string path, string worksheetName = "Export", int startRow = 1, int startColumn = 1) {
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
         Path = System.IO.Path.GetFullPath(System.IO.Path.Combine("data", Guid.NewGuid().ToString(), $"{path}.xlsx"));
@@ -61,8 +60,7 @@ public abstract class ExcelParserTests : IDisposable
     }
 
 
-    protected void Run(ExcelParser parser)
-    {
+    protected void Run(ExcelParser parser) {
         using var reader = new CsvReader(parser);
         reader.Context.AutoMap<Person>();
         Results = reader.GetRecords<Person>().ToArray();
@@ -79,8 +77,7 @@ public abstract class ExcelParserTests : IDisposable
         => Values.Should().BeEquivalentTo(Results, options => options.IncludingProperties());
 
 
-    protected virtual void Dispose(bool disposing)
-    {
+    protected virtual void Dispose(bool disposing) {
         if (disposing) {
             Package?.Dispose();
             Worksheet?.Dispose();
@@ -89,8 +86,7 @@ public abstract class ExcelParserTests : IDisposable
     }
 
 
-    public void Dispose()
-    {
+    public void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
     }

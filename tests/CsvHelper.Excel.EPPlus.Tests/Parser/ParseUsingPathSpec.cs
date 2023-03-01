@@ -2,7 +2,7 @@
 
 public class ParseUsingPathSpec : ExcelParserTests
 {
-    public ParseUsingPathSpec() : base("parse_by_path.xlsx") {
+    public ParseUsingPathSpec() : base("parse_by_path") {
         using var parser = new ExcelParser(Path);
         Run(parser);
     }

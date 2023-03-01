@@ -2,7 +2,7 @@
 
 public class ParseUsingStreamSpec : ExcelParserTests
 {
-    public ParseUsingStreamSpec() : base("parse_by_stream.xlsx") {
+    public ParseUsingStreamSpec() : base("parse_by_stream") {
         using var stream = File.OpenRead(Path);
         using var parser = new ExcelParser(stream);
         Run(parser);

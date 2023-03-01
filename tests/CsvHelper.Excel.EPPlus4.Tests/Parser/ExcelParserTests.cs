@@ -11,7 +11,7 @@ public abstract class ExcelParserTests : IDisposable
 {
     protected readonly Person[] Values = {
         new() { Id = null, Name = "Bill", Age = 40, Empty = "" },
-        new() { Id = null, Name = "Ben", Age = 30, Empty = "" },
+        new() { Id = 5, Name = "Ben", Age = 30, Empty = "" },
         new() { Id = null, Name = "Weed", Age = 40, Empty = "" }
     };
 

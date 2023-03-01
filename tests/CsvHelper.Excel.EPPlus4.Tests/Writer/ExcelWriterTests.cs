@@ -11,7 +11,7 @@ public abstract class ExcelWriterTests : IDisposable
 {
     protected readonly Person[] Values = {
         new() { Id = null, Name = "Bill", Age = 20, Empty = "" },
-        new() { Id = null, Name = "Ben", Age = 20, Empty = "" },
+        new() { Id = 5, Name = "Ben", Age = 20, Empty = "" },
         new() { Id = null, Name = "Weed", Age = 30, Empty = "" }
     };
 

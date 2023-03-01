@@ -2,7 +2,7 @@
 
 public class ParseUsingPackageSpec : ExcelParserTests
 {
-    public ParseUsingPackageSpec() : base("parse_by_package.xlsx") {
+    public ParseUsingPackageSpec() : base("parse_by_package") {
         using var parser = new ExcelParser(Package);
         Run(parser);
     }
